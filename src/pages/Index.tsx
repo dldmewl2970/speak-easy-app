@@ -4,6 +4,8 @@ import { Volume2, Mic, MicOff, RefreshCw, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
+import CustomScriptInput from "@/components/CustomScriptInput";
+import SentenceNav from "@/components/SentenceNav";
 import { getRandomScript } from "@/lib/scripts";
 
 const SpeechRecognitionAPI =
@@ -16,9 +18,46 @@ const Index = () => {
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
+  const [customSentences, setCustomSentences] = useState<string[]>([]);
+  const [sentenceIndex, setSentenceIndex] = useState(0);
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  const isCustomMode = customSentences.length > 0;
+
+  const resetPracticeState = () => {
+    setRecognized("");
+    setError(null);
+    setAudioURL(null);
+    window.speechSynthesis?.cancel();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleCustomSubmit = (sentences: string[]) => {
+    setCustomSentences(sentences);
+    setSentenceIndex(0);
+    setScript(sentences[0]);
+    resetPracticeState();
+  };
+
+  const handleCustomClear = () => {
+    setCustomSentences([]);
+    setSentenceIndex(0);
+    setScript(getRandomScript());
+    resetPracticeState();
+  };
+
+  const handleSentenceNav = (dir: -1 | 1) => {
+    const next = sentenceIndex + dir;
+    if (next < 0 || next >= customSentences.length) return;
+    setSentenceIndex(next);
+    setScript(customSentences[next]);
+    resetPracticeState();
+  };
 
   const handleListen = useCallback(() => {
     if (!window.speechSynthesis) {
@@ -122,14 +161,7 @@ const Index = () => {
 
   const handleNewScript = () => {
     setScript(getRandomScript(script));
-    setRecognized("");
-    setError(null);
-    setAudioURL(null);
-    window.speechSynthesis?.cancel();
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    }
+    resetPracticeState();
   };
 
   return (
@@ -145,15 +177,24 @@ const Index = () => {
               SpeakUp
             </h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNewScript}
-            className="gap-2 text-muted-foreground"
-          >
-            <RefreshCw className="w-4 h-4" />
-            새 문장
-          </Button>
+          <div className="flex items-center gap-2 relative">
+            {!isCustomMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNewScript}
+                className="gap-2 text-muted-foreground"
+              >
+                <RefreshCw className="w-4 h-4" />
+                새 문장
+              </Button>
+            )}
+            <CustomScriptInput
+              onSubmit={handleCustomSubmit}
+              isActive={isCustomMode}
+              onClear={handleCustomClear}
+            />
+          </div>
         </div>
       </header>
 
@@ -161,6 +202,15 @@ const Index = () => {
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-3xl space-y-8">
           <ScriptDisplay script={script} />
+
+          {isCustomMode && (
+            <SentenceNav
+              current={sentenceIndex}
+              total={customSentences.length}
+              onPrev={() => handleSentenceNav(-1)}
+              onNext={() => handleSentenceNav(1)}
+            />
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
