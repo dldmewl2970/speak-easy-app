@@ -408,44 +408,24 @@ const Index = () => {
         <div className="w-full max-w-2xl space-y-6">
           <ScriptDisplay script={script} />
 
-          {/* Saved Scripts Quick Access */}
+          {/* Saved Scripts List */}
           {!isCustomMode && savedScripts.length > 0 && (
-            <div className="space-y-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowScriptList(!showScriptList)}
-                className="gap-2 text-xs text-muted-foreground w-full justify-center"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                Saved Scripts ({savedScripts.length})
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showScriptList ? "rotate-180" : ""}`} />
-              </Button>
-              <AnimatePresence>
-                {showScriptList && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[200px] overflow-y-auto">
-                      {savedScripts.map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => handleLoadScript(s)}
-                          className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center justify-between"
-                        >
-                          <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
-                          <span className="text-xs text-muted-foreground shrink-0 ml-2">
-                            {splitSentences(s.text).length} sentences
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[240px] overflow-y-auto">
+              <p className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                Saved Scripts
+              </p>
+              {savedScripts.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => handleLoadScript(s)}
+                  className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center justify-between"
+                >
+                  <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                    {splitSentences(s.text).length} sentences
+                  </span>
+                </button>
+              ))}
             </div>
           )}
 
