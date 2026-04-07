@@ -182,7 +182,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
               </div>
               <div className="flex justify-end gap-3">
                 <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
-                  취소
+                  Cancel
                 </Button>
                 <Button
                   size="sm"
