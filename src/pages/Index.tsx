@@ -409,7 +409,7 @@ const Index = () => {
       {/* Main */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-2xl space-y-6">
-          <ScriptDisplay script={script} />
+          {script && <ScriptDisplay script={script} />}
 
           {/* Listen-only checkbox */}
           <div className="flex items-center gap-2 justify-center flex-wrap">
