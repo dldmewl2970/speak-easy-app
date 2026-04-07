@@ -127,7 +127,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
         className="gap-2 text-muted-foreground"
       >
         <FileText className="w-4 h-4" />
-        내 스크립트
+        My Scripts
       </Button>
 
       <AnimatePresence>
