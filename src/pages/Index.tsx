@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
 import SentenceNav from "@/components/SentenceNav";
+import ListenOnlyDisplay from "@/components/ListenOnlyDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { splitSentences } from "@/pages/Scripts";
