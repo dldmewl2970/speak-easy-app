@@ -19,7 +19,7 @@ function loadSavedScripts(): SavedScript[] {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     return data.map((s: any) => ({
       ...s,
-      name: s.name || `스크립트 ${new Date(s.createdAt).toLocaleDateString()}`,
+      name: s.name || `Script ${new Date(s.createdAt).toLocaleDateString()}`,
     }));
   } catch {
     return [];
