@@ -353,7 +353,7 @@ const Index = () => {
                 className="gap-1.5 h-8 text-xs rounded-lg"
               >
                 <FileText className="w-3.5 h-3.5" />
-                내 스크립트
+                My Scripts
               </Button>
             )}
           </div>
