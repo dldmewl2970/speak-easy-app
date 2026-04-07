@@ -158,8 +158,8 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                     setText(e.target.value);
                   }
                 }}
-                placeholder={`I have plans tomorrow.\nCould you tell me where the station is?\nI've been studying English for three years.`}
-                className="min-h-[160px] resize-y text-base"
+                placeholder="Enter your scripts."
+                className="min-h-[160px] resize-y text-base px-[5px] py-[5px]"
               />
               <div className="flex items-center gap-3">
                 <Input
