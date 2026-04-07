@@ -302,13 +302,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+      <header className="border-b border-border/50 px-6 py-3 backdrop-blur-sm bg-background/80 sticky top-0 z-40">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/25">
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-foreground">
+            <h1 className="text-base font-bold tracking-tight text-foreground">
               SpeakUp
             </h1>
           </div>
@@ -322,7 +322,7 @@ const Index = () => {
                   localStorage.setItem("speakup-voice", name);
                 }}
               >
-                <SelectTrigger className="w-[180px] h-8 text-xs">
+                <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
                   <SelectValue placeholder="음성 선택" />
                 </SelectTrigger>
                 <SelectContent>
@@ -340,19 +340,19 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleCustomClear}
-                className="gap-2 text-muted-foreground"
+                className="gap-1.5 text-muted-foreground h-8 text-xs"
               >
-                <X className="w-4 h-4" />
-                커스텀 해제
+                <X className="w-3.5 h-3.5" />
+                해제
               </Button>
             ) : (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => navigate("/scripts")}
-                className="gap-2 text-muted-foreground"
+                className="gap-1.5 h-8 text-xs rounded-lg"
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="w-3.5 h-3.5" />
                 내 스크립트
               </Button>
             )}
@@ -360,10 +360,9 @@ const Index = () => {
         </div>
       </header>
 
-
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-        <div className="w-full max-w-3xl space-y-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-10">
+        <div className="w-full max-w-2xl space-y-6">
           <ScriptDisplay script={script} />
 
           {isCustomMode && (
@@ -376,50 +375,66 @@ const Index = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex gap-3 justify-center">
             <Button
               size="lg"
               onClick={() => handleListen(false)}
-              disabled={isSpeaking}
-              className="gap-3 text-base px-8 rounded-xl"
+              disabled={isSpeaking || !script}
+              className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
             >
-              <Volume2 className="w-5 h-5" />
-              {isSpeaking ? "재생 중..." : "원어민 발음 듣기"}
+              <Volume2 className="w-4 h-4" />
+              {isSpeaking ? "재생 중..." : "원어민 듣기"}
             </Button>
 
             <Button
               size="lg"
               variant={isListening ? "destructive" : "outline"}
               onClick={handleRecord}
-              className="gap-3 text-base px-8 rounded-xl"
+              disabled={!script}
+              className="gap-2.5 text-sm px-6 rounded-xl h-11"
             >
               {isListening ? (
                 <>
-                  <MicOff className="w-5 h-5" />
+                  <MicOff className="w-4 h-4" />
                   녹음 중지
                 </>
               ) : (
                 <>
-                  <Mic className="w-5 h-5" />
-                  내 발음 녹음하기
+                  <Mic className="w-4 h-4" />
+                  녹음하기
                 </>
               )}
             </Button>
+
+            {audioURL && (
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => {
+                  const audio = new Audio(audioURL);
+                  audio.play();
+                }}
+                className="gap-2.5 text-sm px-6 rounded-xl h-11"
+              >
+                <Play className="w-4 h-4" />
+                내 발음
+              </Button>
+            )}
           </div>
 
           {/* Listening indicator */}
           <AnimatePresence>
             {isListening && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 className="flex justify-center"
               >
-                <div className="flex items-center gap-2 text-destructive">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive" />
+                <div className="flex items-center gap-3 bg-destructive/10 text-destructive px-5 py-2.5 rounded-full">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
                   </span>
                   <span className="text-sm font-medium">듣고 있습니다... 말해보세요!</span>
                 </div>
@@ -434,42 +449,12 @@ const Index = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="rounded-xl bg-destructive/10 border border-destructive/20 px-6 py-4 text-center"
+                className="rounded-xl bg-destructive/10 border border-destructive/20 px-5 py-3 text-center"
               >
                 <p className="text-sm text-destructive font-medium">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Comparison playback - always visible */}
-          <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-3 w-full max-w-md">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => handleListen(false)}
-                disabled={isSpeaking}
-                className="gap-2 rounded-xl"
-              >
-                <Volume2 className="w-4 h-4" />
-                {isSpeaking ? "재생 중..." : "🔊 원어민 발음"}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  if (!audioURL) return;
-                  const audio = new Audio(audioURL);
-                  audio.play();
-                }}
-                disabled={!audioURL}
-                className="gap-2 rounded-xl"
-              >
-                <Play className="w-4 h-4" />
-                {audioURL ? "🎙️ 내 발음" : "🎙️ 녹음 필요"}
-              </Button>
-            </div>
-          </div>
 
           {/* Feedback */}
           <AnimatePresence>
