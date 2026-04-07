@@ -107,24 +107,38 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
         })}
       </div>
 
+      {/* Comparison playback */}
+      <div className="pt-4 border-t border-border space-y-4">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          발음 비교
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            onClick={handlePlayNative}
+            disabled={isPlayingNative}
+            className="gap-2 justify-center"
+          >
+            <Volume2 className="w-4 h-4" />
+            {isPlayingNative ? "재생 중..." : "🔊 원어민 발음"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handlePlayMine}
+            disabled={!audioURL || isPlayingMine}
+            className="gap-2 justify-center"
+          >
+            <Play className="w-4 h-4" />
+            {isPlayingMine ? "재생 중..." : "🎙️ 내 발음"}
+          </Button>
+        </div>
+      </div>
+
       {recognized && (
         <div className="pt-4 border-t border-border">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              내가 말한 것
-            </p>
-            {audioURL && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePlayback}
-                className="gap-2 text-xs"
-              >
-                <Play className="w-3 h-3" />
-                {isPlaying ? "재생 중..." : "내 발음 듣기"}
-              </Button>
-            )}
-          </div>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
+            내가 말한 것
+          </p>
           <p className="text-lg text-muted-foreground" style={{ fontFamily: "var(--font-mono)" }}>
             {recognized}
           </p>
