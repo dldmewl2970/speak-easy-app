@@ -67,7 +67,8 @@ const Index = () => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
       mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const mimeType = mediaRecorder.mimeType || "audio/webm";
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
         setAudioURL(URL.createObjectURL(blob));
         stream.getTracks().forEach((t) => t.stop());
       };
