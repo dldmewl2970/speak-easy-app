@@ -68,22 +68,72 @@ const Index = () => {
     resetPracticeState();
   };
 
-  const handleListen = useCallback(() => {
+  // 자연스러운 영어 음성 선택
+  const getBestVoice = useCallback(() => {
+    const voices = window.speechSynthesis?.getVoices() || [];
+    // 우선순위: Google UK > Google US > Microsoft > 기본 en-US
+    const preferred = [
+      "Google UK English Female",
+      "Google UK English Male",
+      "Google US English",
+      "Microsoft Zira",
+      "Microsoft David",
+      "Samantha",
+      "Karen",
+      "Daniel",
+    ];
+    for (const name of preferred) {
+      const v = voices.find((voice) => voice.name.includes(name));
+      if (v) return v;
+    }
+    return voices.find((v) => v.lang.startsWith("en")) || null;
+  }, []);
+
+  const handleListen = useCallback((autoRecordAfter = false) => {
     if (!window.speechSynthesis) {
       setError("이 브라우저는 음성 합성을 지원하지 않습니다.");
       return;
     }
+    if (!script) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(script);
     utterance.lang = "en-US";
-    utterance.rate = 0.9;
+    utterance.rate = 0.92;
+    utterance.pitch = 1.0;
+    const voice = getBestVoice();
+    if (voice) utterance.voice = voice;
     utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      if (autoRecordAfter) {
+        // 원어민 발음 끝나면 자동으로 녹음 시작
+        setTimeout(() => handleRecord(), 400);
+      }
+    };
     utterance.onerror = () => {
       setIsSpeaking(false);
       setError("음성 재생 중 오류가 발생했습니다.");
     };
     window.speechSynthesis.speak(utterance);
+  }, [script, getBestVoice]);
+
+  // 음성 목록 로드 (비동기)
+  useEffect(() => {
+    window.speechSynthesis?.getVoices();
+    const handler = () => {};
+    window.speechSynthesis?.addEventListener?.("voiceschanged", handler);
+    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", handler);
+  }, []);
+
+  // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작
+  useEffect(() => {
+    if (!script) return;
+    // 약간의 딜레이 후 자동 재생
+    const timer = setTimeout(() => {
+      handleListen(true);
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [script]);
 
   const handleRecord = useCallback(() => {
@@ -226,7 +276,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              onClick={handleListen}
+              onClick={() => handleListen(false)}
               disabled={isSpeaking}
               className="gap-3 text-base px-8 rounded-xl"
             >
@@ -294,7 +344,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={handleListen}
+                onClick={() => handleListen(false)}
                 disabled={isSpeaking}
                 className="gap-2 rounded-xl"
               >
