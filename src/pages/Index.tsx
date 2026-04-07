@@ -140,6 +140,28 @@ const Index = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [script]);
 
+  const stopRecording = useCallback(() => {
+    if (silenceCheckRef.current) {
+      clearInterval(silenceCheckRef.current);
+      silenceCheckRef.current = null;
+    }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    setIsListening(false);
+  }, []);
+
   const handleRecord = useCallback(() => {
     if (!SpeechRecognitionAPI) {
       setError(
@@ -148,12 +170,8 @@ const Index = () => {
       return;
     }
 
-    if (isListening && recognitionRef.current) {
-      recognitionRef.current.stop();
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-        mediaRecorderRef.current.stop();
-      }
-      setIsListening(false);
+    if (isListening) {
+      stopRecording();
       return;
     }
 
@@ -161,8 +179,16 @@ const Index = () => {
     setRecognized("");
     setAudioURL(null);
 
-    // Start audio recording
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      // 오디오 분석기 설정 (무음 감지용)
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+
       const mediaRecorder = new MediaRecorder(stream);
       audioChunksRef.current = [];
       mediaRecorder.ondataavailable = (e) => {
@@ -182,45 +208,78 @@ const Index = () => {
       };
       mediaRecorder.start();
       mediaRecorderRef.current = mediaRecorder;
+
+      // 4초 무음 감지 로직
+      let lastSoundTime = Date.now();
+      const SILENCE_THRESHOLD = 15; // 볼륨 임계값
+      const SILENCE_DURATION = 4000; // 4초
+
+      silenceCheckRef.current = setInterval(() => {
+        if (!analyserRef.current) return;
+        const data = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(data);
+        const avg = data.reduce((sum, v) => sum + v, 0) / data.length;
+
+        if (avg > SILENCE_THRESHOLD) {
+          lastSoundTime = Date.now();
+        } else if (Date.now() - lastSoundTime > SILENCE_DURATION) {
+          // 4초 이상 무음 → 녹음 종료
+          stopRecording();
+        }
+      }, 200);
     }).catch(() => {});
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = "en-US";
     recognition.interimResults = false;
-    recognition.continuous = false;
+    recognition.continuous = true; // 연속 인식으로 변경
     recognition.maxAlternatives = 1;
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setRecognized(transcript);
+      let fullTranscript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        fullTranscript += event.results[i][0].transcript;
+      }
+      setRecognized(fullTranscript);
     };
 
     recognition.onerror = (event: any) => {
-      setIsListening(false);
       if (event.error === "not-allowed") {
         setError("마이크 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.");
+        stopRecording();
       } else if (event.error === "no-speech") {
-        setError("음성이 감지되지 않았습니다. 다시 시도해주세요.");
+        // 무시 — 무음 감지로 처리
       } else if (event.error === "network") {
         setError(
-          "네트워크 오류: Chrome 음성 인식은 Google 서버와 통신이 필요합니다. 앱을 새 탭에서 직접 열거나, 브라우저 주소창에 URL을 입력해 접속해주세요."
+          "네트워크 오류: Chrome 음성 인식은 Google 서버와 통신이 필요합니다."
         );
+        stopRecording();
       } else {
         setError(`음성 인식 오류: ${event.error}`);
+        stopRecording();
       }
     };
 
     recognition.onend = () => {
+      // continuous 모드에서 자연 종료 시 mediaRecorder도 정리
+      if (silenceCheckRef.current) {
+        clearInterval(silenceCheckRef.current);
+        silenceCheckRef.current = null;
+      }
       setIsListening(false);
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+        audioContextRef.current = null;
       }
     };
 
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
-  }, [isListening]);
+  }, [isListening, stopRecording]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
