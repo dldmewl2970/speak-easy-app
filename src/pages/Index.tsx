@@ -1,19 +1,17 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, RefreshCw, Play } from "lucide-react";
+import { Volume2, Mic, MicOff, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
 import CustomScriptInput from "@/components/CustomScriptInput";
 import SentenceNav from "@/components/SentenceNav";
-import { getRandomScript, type Difficulty, difficultyLabels } from "@/lib/scripts";
 
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const Index = () => {
-  const [script, setScript] = useState(() => getRandomScript());
-  const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
+  const [script, setScript] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
@@ -48,7 +46,7 @@ const Index = () => {
   const handleCustomClear = () => {
     setCustomSentences([]);
     setSentenceIndex(0);
-    setScript(getRandomScript(undefined, difficulty));
+    setScript("");
     resetPracticeState();
   };
 
@@ -160,17 +158,6 @@ const Index = () => {
     setIsListening(true);
   }, [isListening]);
 
-  const handleNewScript = () => {
-    setScript(getRandomScript(script, difficulty));
-    resetPracticeState();
-  };
-
-  const handleDifficultyChange = (d: Difficulty | undefined) => {
-    setDifficulty(d);
-    setScript(getRandomScript(script, d));
-    resetPracticeState();
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -185,17 +172,6 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2 relative">
-            {!isCustomMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleNewScript}
-                className="gap-2 text-muted-foreground"
-              >
-                <RefreshCw className="w-4 h-4" />
-                새 문장
-              </Button>
-            )}
             <CustomScriptInput
               onSubmit={handleCustomSubmit}
               isActive={isCustomMode}
@@ -205,27 +181,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Difficulty filter */}
-      {!isCustomMode && (
-        <div className="border-b border-border px-6 py-2">
-          <div className="max-w-3xl mx-auto flex items-center gap-2">
-            <span className="text-xs text-muted-foreground mr-1">난이도:</span>
-            {([undefined, "beginner", "intermediate", "advanced"] as (Difficulty | undefined)[]).map((d) => (
-              <button
-                key={d ?? "all"}
-                onClick={() => handleDifficultyChange(d)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  difficulty === d
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {d ? difficultyLabels[d] : "전체"}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Main */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
