@@ -1,33 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play } from "lucide-react";
+import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-const STORAGE_KEY = "speakup-custom-scripts";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SavedScript {
   id: string;
   name: string;
   text: string;
-  createdAt: number;
-}
-
-function loadSavedScripts(): SavedScript[] {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return data.map((s: any) => ({
-      ...s,
-      name: s.name || `Script ${new Date(s.createdAt).toLocaleDateString()}`,
-    }));
-  } catch {
-    return [];
-  }
-}
-
-function saveToDisk(scripts: SavedScript[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(scripts));
+  created_at: string;
 }
 
 export function splitSentences(t: string) {
@@ -39,43 +24,77 @@ export function splitSentences(t: string) {
 
 const Scripts = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [text, setText] = useState("");
   const [scriptName, setScriptName] = useState("");
   const [saved, setSaved] = useState<SavedScript[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load scripts from DB
   useEffect(() => {
-    setSaved(loadSavedScripts());
-  }, []);
+    if (authLoading) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    const fetchScripts = async () => {
+      const { data, error } = await supabase
+        .from("scripts")
+        .select("id, name, text, created_at")
+        .order("created_at", { ascending: false });
+      if (error) {
+        toast.error("Failed to load scripts");
+      } else {
+        setSaved(data || []);
+      }
+      setIsLoading(false);
+    };
+    fetchScripts();
+  }, [user, authLoading]);
 
   const charCount = text.length;
   const MAX_CHARS = 3000;
 
-  const handleSave = () => {
-    if (!text.trim()) return;
+  const handleSave = async () => {
+    if (!text.trim() || !user) return;
     const name = scriptName.trim() || `Script ${saved.length + 1}`;
-    const entry: SavedScript = { id: crypto.randomUUID(), name, text, createdAt: Date.now() };
-    const updated = [entry, ...saved].slice(0, 20);
-    setSaved(updated);
-    saveToDisk(updated);
+    const { data, error } = await supabase
+      .from("scripts")
+      .insert({ name, text, user_id: user.id })
+      .select("id, name, text, created_at")
+      .single();
+    if (error) {
+      toast.error("Failed to save script");
+      return;
+    }
+    setSaved([data, ...saved]);
     setScriptName("");
     setText("");
+    toast.success("Script saved!");
   };
 
-  const handleDelete = (id: string) => {
-    const updated = saved.filter((s) => s.id !== id);
-    setSaved(updated);
-    saveToDisk(updated);
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("scripts").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete");
+      return;
+    }
+    setSaved(saved.filter((s) => s.id !== id));
   };
 
-  const handleRename = (id: string) => {
+  const handleRename = async (id: string) => {
     if (!editingName.trim()) return;
-    const updated = saved.map((s) =>
-      s.id === id ? { ...s, name: editingName.trim() } : s
-    );
-    setSaved(updated);
-    saveToDisk(updated);
+    const { error } = await supabase
+      .from("scripts")
+      .update({ name: editingName.trim() })
+      .eq("id", id);
+    if (error) {
+      toast.error("Failed to rename");
+      return;
+    }
+    setSaved(saved.map((s) => (s.id === id ? { ...s, name: editingName.trim() } : s)));
     setEditingId(null);
   };
 
@@ -87,14 +106,12 @@ const Scripts = () => {
   const handleStartPractice = () => {
     const sentences = splitSentences(text);
     if (sentences.length === 0) return;
-    // Store in sessionStorage so Index can pick it up
     sessionStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     navigate("/");
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="border-b border-border px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -104,9 +121,30 @@ const Scripts = () => {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-foreground">
-              My Scripts
-            </h1>
+            <h1 className="text-lg font-bold tracking-tight text-foreground">My Scripts</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                  {user.email}
+                </span>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-xs">
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="gap-1.5 text-xs"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Sign In to Save
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -120,9 +158,7 @@ const Scripts = () => {
                 Enter sentences to practice (separated by Enter or period)
               </p>
               <span
-                className={`text-xs ${
-                  charCount > MAX_CHARS ? "text-destructive" : "text-muted-foreground"
-                }`}
+                className={`text-xs ${charCount > MAX_CHARS ? "text-destructive" : "text-muted-foreground"}`}
               >
                 {charCount}/{MAX_CHARS}
               </span>
@@ -149,13 +185,20 @@ const Scripts = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleSave}
-                disabled={!text.trim()}
+                disabled={!text.trim() || !user}
                 className="gap-2 shrink-0"
+                title={!user ? "Sign in to save scripts" : undefined}
               >
                 <Save className="w-4 h-4" />
                 Save
               </Button>
             </div>
+
+            {!user && (
+              <p className="text-xs text-muted-foreground text-center">
+                Sign in to save scripts to the cloud and access them anywhere.
+              </p>
+            )}
 
             <div className="flex justify-end">
               <Button
@@ -171,7 +214,9 @@ const Scripts = () => {
           </div>
 
           {/* Saved scripts */}
-          {saved.length > 0 && (
+          {isLoading ? (
+            <div className="text-center py-8 text-sm text-muted-foreground">Loading...</div>
+          ) : saved.length > 0 ? (
             <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
               <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 Saved Scripts
@@ -200,16 +245,9 @@ const Scripts = () => {
                           />
                         </form>
                       ) : (
-                        <button
-                          onClick={() => handleLoad(s)}
-                          className="flex-1 text-left truncate mr-3"
-                        >
-                          <span className="text-sm font-medium text-foreground">
-                            {s.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground ml-2">
-                            {count} sentences
-                          </span>
+                        <button onClick={() => handleLoad(s)} className="flex-1 text-left truncate mr-3">
+                          <span className="text-sm font-medium text-foreground">{s.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{count} sentences</span>
                         </button>
                       )}
                       <div className="flex items-center gap-1 shrink-0">
@@ -217,10 +255,7 @@ const Scripts = () => {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                          onClick={() => {
-                            setEditingId(s.id);
-                            setEditingName(s.name);
-                          }}
+                          onClick={() => { setEditingId(s.id); setEditingName(s.name); }}
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </Button>
@@ -238,7 +273,11 @@ const Scripts = () => {
                 })}
               </div>
             </div>
-          )}
+          ) : user ? (
+            <div className="text-center py-8 text-sm text-muted-foreground">
+              No saved scripts yet. Write something above and save it!
+            </div>
+          ) : null}
         </div>
       </main>
     </div>
