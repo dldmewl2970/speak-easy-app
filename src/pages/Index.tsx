@@ -180,7 +180,17 @@ const Index = () => {
   useEffect(() => {
     const loadVoices = () => {
       const voices = window.speechSynthesis?.getVoices() || [];
-      const enVoices = voices.filter((v) => v.lang.startsWith("en"));
+      // Exclude novelty / sound-effect voices that aren't real speech
+      const noveltyNames = [
+        "Bad News", "Bahh", "Bells", "Boing", "Bubbles", "Cellos",
+        "Good News", "Jester", "Organ", "Superstar", "Trinoids",
+        "Whisper", "Wobble", "Zarvox", "Albert", "Fred", "Hysterical",
+        "Princess", "Pipe Organ", "Deranged", "Ralph",
+      ];
+      const enVoices = voices.filter((v) =>
+        v.lang.startsWith("en") &&
+        !noveltyNames.some((n) => v.name.includes(n))
+      );
       setAvailableVoices(enVoices);
       // 저장된 음성 복원
       if (!selectedVoiceName) {
