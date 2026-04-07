@@ -208,7 +208,7 @@ const Scripts = () => {
                             {s.name}
                           </span>
                           <span className="text-xs text-muted-foreground ml-2">
-                            {count}문장
+                            {count} sentences
                           </span>
                         </button>
                       )}

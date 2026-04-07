@@ -169,7 +169,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
         {recognized && (
           <div className="pt-4 border-t border-border">
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-2">
-              내가 말한 것
+              What I Said
             </p>
             <p className="text-base text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {recognized}

@@ -436,7 +436,7 @@ const Index = () => {
                     <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
                   </span>
-                  <span className="text-sm font-medium">듣고 있습니다... 말해보세요!</span>
+                  <span className="text-sm font-medium">Listening... Speak now!</span>
                 </div>
               </motion.div>
             )}
