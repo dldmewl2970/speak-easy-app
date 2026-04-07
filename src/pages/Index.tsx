@@ -210,6 +210,15 @@ const Index = () => {
         <div className="w-full max-w-3xl space-y-8">
           <ScriptDisplay script={script} />
 
+          {isCustomMode && (
+            <SentenceNav
+              current={sentenceIndex}
+              total={customSentences.length}
+              onPrev={() => handleSentenceNav(-1)}
+              onNext={() => handleSentenceNav(1)}
+            />
+          )}
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
