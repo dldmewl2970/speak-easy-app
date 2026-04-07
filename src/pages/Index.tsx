@@ -193,16 +193,15 @@ const Index = () => {
     return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", loadVoices);
   }, []);
 
-  // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작
+  // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작 (listen-only 모드가 아닐 때만)
   useEffect(() => {
-    if (!script) return;
-    // 약간의 딜레이 후 자동 재생
+    if (!script || listenOnly) return;
     const timer = setTimeout(() => {
       handleListen(true);
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [script]);
+  }, [script, listenOnly]);
 
   const stopRecording = useCallback(() => {
     if (silenceCheckRef.current) {
