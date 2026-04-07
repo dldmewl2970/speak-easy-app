@@ -313,6 +313,28 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            {availableVoices.length > 0 && (
+              <Select
+                value={selectedVoiceName || "auto"}
+                onValueChange={(val) => {
+                  const name = val === "auto" ? "" : val;
+                  setSelectedVoiceName(name);
+                  localStorage.setItem("speakup-voice", name);
+                }}
+              >
+                <SelectTrigger className="w-[180px] h-8 text-xs">
+                  <SelectValue placeholder="음성 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">🔊 자동 선택</SelectItem>
+                  {availableVoices.map((v) => (
+                    <SelectItem key={v.name} value={v.name}>
+                      {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             {isCustomMode ? (
               <Button
                 variant="ghost"
