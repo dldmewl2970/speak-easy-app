@@ -1,16 +1,17 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
-import CustomScriptInput from "@/components/CustomScriptInput";
 import SentenceNav from "@/components/SentenceNav";
 
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const Index = () => {
+  const navigate = useNavigate();
   const [script, setScript] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -25,6 +26,22 @@ const Index = () => {
 
   const isCustomMode = customSentences.length > 0;
 
+  // Load sentences from sessionStorage (set by Scripts page)
+  useEffect(() => {
+    const data = sessionStorage.getItem("speakup-active-sentences");
+    if (data) {
+      try {
+        const sentences = JSON.parse(data);
+        if (Array.isArray(sentences) && sentences.length > 0) {
+          setCustomSentences(sentences);
+          setSentenceIndex(0);
+          setScript(sentences[0]);
+        }
+      } catch {}
+      sessionStorage.removeItem("speakup-active-sentences");
+    }
+  }, []);
+
   const resetPracticeState = () => {
     setRecognized("");
     setError(null);
@@ -34,13 +51,6 @@ const Index = () => {
       recognitionRef.current.stop();
       setIsListening(false);
     }
-  };
-
-  const handleCustomSubmit = (sentences: string[]) => {
-    setCustomSentences(sentences);
-    setSentenceIndex(0);
-    setScript(sentences[0]);
-    resetPracticeState();
   };
 
   const handleCustomClear = () => {
@@ -171,12 +181,28 @@ const Index = () => {
               SpeakUp
             </h1>
           </div>
-          <div className="flex items-center gap-2 relative">
-            <CustomScriptInput
-              onSubmit={handleCustomSubmit}
-              isActive={isCustomMode}
-              onClear={handleCustomClear}
-            />
+          <div className="flex items-center gap-2">
+            {isCustomMode ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCustomClear}
+                className="gap-2 text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+                커스텀 해제
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/scripts")}
+                className="gap-2 text-muted-foreground"
+              >
+                <FileText className="w-4 h-4" />
+                내 스크립트
+              </Button>
+            )}
           </div>
         </div>
       </header>
