@@ -161,7 +161,13 @@ const Index = () => {
   }, [isListening]);
 
   const handleNewScript = () => {
-    setScript(getRandomScript(script));
+    setScript(getRandomScript(script, difficulty));
+    resetPracticeState();
+  };
+
+  const handleDifficultyChange = (d: Difficulty | undefined) => {
+    setDifficulty(d);
+    setScript(getRandomScript(script, d));
     resetPracticeState();
   };
 
