@@ -132,7 +132,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
           {isTranslating ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              번역 중...
+              Translating...
             </div>
           ) : (
             <p className="text-sm text-foreground leading-relaxed">
