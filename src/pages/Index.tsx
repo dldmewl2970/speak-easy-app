@@ -13,6 +13,7 @@ const SpeechRecognitionAPI =
 
 const Index = () => {
   const [script, setScript] = useState(() => getRandomScript());
+  const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
