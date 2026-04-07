@@ -165,7 +165,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                 <Input
                   value={scriptName}
                   onChange={(e) => setScriptName(e.target.value)}
-                  placeholder="스크립트 이름 (예: 비즈니스 영어)"
+                  placeholder="Script name (e.g. Business English)"
                   className="flex-1 h-9 text-sm"
                   maxLength={50}
                 />
