@@ -19,17 +19,38 @@ function normalize(text: string): string[] {
 
 const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlayingMine, setIsPlayingMine] = useState(false);
+  const [isPlayingNative, setIsPlayingNative] = useState(false);
 
-  const handlePlayback = () => {
-    if (!audioURL) return;
+  const stopAll = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current = null;
     }
+    window.speechSynthesis?.cancel();
+    setIsPlayingMine(false);
+    setIsPlayingNative(false);
+  }, []);
+
+  const handlePlayNative = () => {
+    stopAll();
+    if (!window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(original);
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.onstart = () => setIsPlayingNative(true);
+    utterance.onend = () => setIsPlayingNative(false);
+    utterance.onerror = () => setIsPlayingNative(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handlePlayMine = () => {
+    if (!audioURL) return;
+    stopAll();
     const audio = new Audio(audioURL);
     audioRef.current = audio;
-    audio.onplay = () => setIsPlaying(true);
-    audio.onended = () => setIsPlaying(false);
+    audio.onplay = () => setIsPlayingMine(true);
+    audio.onended = () => setIsPlayingMine(false);
     audio.play();
   };
   const origWords = normalize(original);
