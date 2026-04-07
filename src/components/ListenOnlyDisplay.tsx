@@ -13,6 +13,7 @@ interface ListenOnlyDisplayProps {
   sentence: string;
   onDone: () => void;
   delaySeconds?: number;
+  repeatCount?: number;
 }
 
 const renderProsody = (prosody: string) => {
