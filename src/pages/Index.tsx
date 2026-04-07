@@ -6,7 +6,7 @@ import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
 import CustomScriptInput from "@/components/CustomScriptInput";
 import SentenceNav from "@/components/SentenceNav";
-import { getRandomScript } from "@/lib/scripts";
+import { getRandomScript, type Difficulty, difficultyLabels } from "@/lib/scripts";
 
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
