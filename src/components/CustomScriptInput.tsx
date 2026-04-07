@@ -138,7 +138,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             exit={{ opacity: 0, y: -10 }}
             className="absolute top-full left-0 right-0 z-50 mt-2 my-0 px-0"
           >
-            <div className="max-w-5xl mx-auto rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4">
+            <div className="max-w-7xl mx-auto rounded-2xl bg-card border border-border p-4 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-foreground">
                   연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
@@ -159,7 +159,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   }
                 }}
                 placeholder="Enter your scripts."
-                className="min-h-[160px] resize-y text-base px-[5px] py-[5px]"
+                className="min-h-[100px] resize-y text-base px-[5px] py-[5px]"
               />
               <div className="flex items-center gap-3">
                 <Input
