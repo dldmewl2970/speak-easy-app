@@ -136,7 +136,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full left-0 right-0 z-50 mt-2 px-6"
+            className="absolute top-full left-0 right-0 z-50 mt-2 my-0 px-0"
           >
             <div className="max-w-5xl mx-auto rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
@@ -158,8 +158,8 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                     setText(e.target.value);
                   }
                 }}
-                placeholder={`I have plans tomorrow.\nCould you tell me where the station is?\nI've been studying English for three years.`}
-                className="min-h-[160px] resize-y text-base"
+                placeholder="Enter your scripts."
+                className="min-h-[160px] resize-y text-base px-[5px] py-[5px]"
               />
               <div className="flex items-center gap-3">
                 <Input
