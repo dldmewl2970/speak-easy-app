@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Play, Volume2, CheckCircle2, XCircle } from "lucide-react";
+import { Play, Volume2, CheckCircle2, XCircle, Languages, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FeedbackDisplayProps {
   original: string;
@@ -21,6 +22,24 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingMine, setIsPlayingMine] = useState(false);
   const [isPlayingNative, setIsPlayingNative] = useState(false);
+  const [translation, setTranslation] = useState<string>("");
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Auto-translate when original text appears
+  useEffect(() => {
+    if (!original) return;
+    setIsTranslating(true);
+    setTranslation("");
+
+    supabase.functions
+      .invoke("translate", { body: { text: original } })
+      .then(({ data, error }) => {
+        if (!error && data?.translation) {
+          setTranslation(data.translation);
+        }
+      })
+      .finally(() => setIsTranslating(false));
+  }, [original]);
 
   const stopAll = useCallback(() => {
     if (audioRef.current) {
@@ -105,6 +124,21 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
               </motion.span>
             );
           })}
+        </div>
+
+        {/* Korean translation */}
+        <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-muted/50 border border-border/50">
+          <Languages className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+          {isTranslating ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              번역 중...
+            </div>
+          ) : (
+            <p className="text-sm text-foreground leading-relaxed">
+              {translation || "번역을 불러올 수 없습니다."}
+            </p>
+          )}
         </div>
 
         {/* Playback comparison */}
