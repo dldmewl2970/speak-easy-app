@@ -15,7 +15,10 @@ const Index = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [audioURL, setAudioURL] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleListen = useCallback(() => {
     if (!window.speechSynthesis) {
