@@ -20,7 +20,7 @@ function loadSavedScripts(): SavedScript[] {
     // migrate old format without name
     return data.map((s: any) => ({
       ...s,
-      name: s.name || `스크립트 ${new Date(s.createdAt).toLocaleDateString()}`,
+      name: s.name || `Script ${new Date(s.createdAt).toLocaleDateString()}`,
     }));
   } catch {
     return [];
