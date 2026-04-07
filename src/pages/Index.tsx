@@ -15,7 +15,10 @@ const Index = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [audioURL, setAudioURL] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleListen = useCallback(() => {
     if (!window.speechSynthesis) {
@@ -45,12 +48,32 @@ const Index = () => {
 
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       setIsListening(false);
       return;
     }
 
     setError(null);
     setRecognized("");
+    setAudioURL(null);
+
+    // Start audio recording
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        setAudioURL(URL.createObjectURL(blob));
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+    }).catch(() => {});
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = "en-US";
@@ -78,7 +101,12 @@ const Index = () => {
       }
     };
 
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      setIsListening(false);
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+    };
 
     recognitionRef.current = recognition;
     recognition.start();
@@ -89,6 +117,7 @@ const Index = () => {
     setScript(getRandomScript(script));
     setRecognized("");
     setError(null);
+    setAudioURL(null);
     window.speechSynthesis?.cancel();
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -195,7 +224,7 @@ const Index = () => {
           {/* Feedback */}
           <AnimatePresence>
             {recognized && (
-              <FeedbackDisplay original={script} recognized={recognized} />
+              <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
             )}
           </AnimatePresence>
         </div>
