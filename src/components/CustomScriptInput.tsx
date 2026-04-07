@@ -197,7 +197,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
               {saved.length > 0 && (
                 <div className="border-t border-border pt-4 space-y-2">
                   <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    저장된 스크립트
+                    Saved Scripts
                   </p>
                   <div className="space-y-2 max-h-[240px] overflow-y-auto">
                     {saved.map((s) => {
