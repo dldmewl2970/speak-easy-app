@@ -78,7 +78,11 @@ const Index = () => {
   // 자연스러운 영어 음성 선택
   const getBestVoice = useCallback(() => {
     const voices = window.speechSynthesis?.getVoices() || [];
-    // 우선순위: Google UK > Google US > Microsoft > 기본 en-US
+    // 사용자가 선택한 음성이 있으면 우선 사용
+    if (selectedVoiceName) {
+      const selected = voices.find((v) => v.name === selectedVoiceName);
+      if (selected) return selected;
+    }
     const preferred = [
       "Google UK English Female",
       "Google UK English Male",
@@ -94,7 +98,7 @@ const Index = () => {
       if (v) return v;
     }
     return voices.find((v) => v.lang.startsWith("en")) || null;
-  }, []);
+  }, [selectedVoiceName]);
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!window.speechSynthesis) {
