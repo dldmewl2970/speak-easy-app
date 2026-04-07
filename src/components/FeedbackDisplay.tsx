@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Play } from "lucide-react";
+import { Play, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 
 interface FeedbackDisplayProps {
   original: string;
@@ -19,17 +19,38 @@ function normalize(text: string): string[] {
 
 const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlayingMine, setIsPlayingMine] = useState(false);
+  const [isPlayingNative, setIsPlayingNative] = useState(false);
 
-  const handlePlayback = () => {
-    if (!audioURL) return;
+  const stopAll = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current = null;
     }
+    window.speechSynthesis?.cancel();
+    setIsPlayingMine(false);
+    setIsPlayingNative(false);
+  }, []);
+
+  const handlePlayNative = () => {
+    stopAll();
+    if (!window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(original);
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.onstart = () => setIsPlayingNative(true);
+    utterance.onend = () => setIsPlayingNative(false);
+    utterance.onerror = () => setIsPlayingNative(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handlePlayMine = () => {
+    if (!audioURL) return;
+    stopAll();
     const audio = new Audio(audioURL);
     audioRef.current = audio;
-    audio.onplay = () => setIsPlaying(true);
-    audio.onended = () => setIsPlaying(false);
+    audio.onplay = () => setIsPlayingMine(true);
+    audio.onended = () => setIsPlayingMine(false);
     audio.play();
   };
   const origWords = normalize(original);
@@ -86,24 +107,38 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
         })}
       </div>
 
+      {/* Comparison playback */}
+      <div className="pt-4 border-t border-border space-y-4">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          발음 비교
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            onClick={handlePlayNative}
+            disabled={isPlayingNative}
+            className="gap-2 justify-center"
+          >
+            <Volume2 className="w-4 h-4" />
+            {isPlayingNative ? "재생 중..." : "🔊 원어민 발음"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handlePlayMine}
+            disabled={!audioURL || isPlayingMine}
+            className="gap-2 justify-center"
+          >
+            <Play className="w-4 h-4" />
+            {isPlayingMine ? "재생 중..." : "🎙️ 내 발음"}
+          </Button>
+        </div>
+      </div>
+
       {recognized && (
         <div className="pt-4 border-t border-border">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              내가 말한 것
-            </p>
-            {audioURL && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePlayback}
-                className="gap-2 text-xs"
-              >
-                <Play className="w-3 h-3" />
-                {isPlaying ? "재생 중..." : "내 발음 듣기"}
-              </Button>
-            )}
-          </div>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
+            내가 말한 것
+          </p>
           <p className="text-lg text-muted-foreground" style={{ fontFamily: "var(--font-mono)" }}>
             {recognized}
           </p>
