@@ -153,7 +153,7 @@ const Scripts = () => {
                 className="gap-2 shrink-0"
               >
                 <Save className="w-4 h-4" />
-                저장
+                Save
               </Button>
             </div>
 
