@@ -181,12 +181,28 @@ const Index = () => {
               SpeakUp
             </h1>
           </div>
-          <div className="flex items-center gap-2 relative">
-            <CustomScriptInput
-              onSubmit={handleCustomSubmit}
-              isActive={isCustomMode}
-              onClear={handleCustomClear}
-            />
+          <div className="flex items-center gap-2">
+            {isCustomMode ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCustomClear}
+                className="gap-2 text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+                커스텀 해제
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/scripts")}
+                className="gap-2 text-muted-foreground"
+              >
+                <FileText className="w-4 h-4" />
+                내 스크립트
+              </Button>
+            )}
           </div>
         </div>
       </header>
