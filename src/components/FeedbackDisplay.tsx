@@ -161,7 +161,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
             className="gap-2 rounded-xl h-10"
           >
             <Play className="w-4 h-4" />
-            {isPlayingMine ? "재생 중..." : "내 발음"}
+            {isPlayingMine ? "Playing..." : "My Voice"}
           </Button>
         </div>
 
