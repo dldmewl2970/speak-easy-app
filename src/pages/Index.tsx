@@ -417,7 +417,7 @@ const Index = () => {
                 className="gap-2.5 text-sm px-6 rounded-xl h-11"
               >
                 <Play className="w-4 h-4" />
-                내 발음
+                My Voice
               </Button>
             )}
           </div>
