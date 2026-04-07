@@ -153,7 +153,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
                     Stress & Pauses
                   </span>
                 </div>
-                <p className="text-base leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <p className="text-base leading-relaxed flex flex-wrap" style={{ fontFamily: "'JetBrains Mono', monospace", overflowWrap: "break-word" }}>
                   {renderProsody(analysis.prosody)}
                 </p>
               </div>
