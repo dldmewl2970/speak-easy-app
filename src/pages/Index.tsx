@@ -18,9 +18,46 @@ const Index = () => {
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
+  const [customSentences, setCustomSentences] = useState<string[]>([]);
+  const [sentenceIndex, setSentenceIndex] = useState(0);
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  const isCustomMode = customSentences.length > 0;
+
+  const resetPracticeState = () => {
+    setRecognized("");
+    setError(null);
+    setAudioURL(null);
+    window.speechSynthesis?.cancel();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleCustomSubmit = (sentences: string[]) => {
+    setCustomSentences(sentences);
+    setSentenceIndex(0);
+    setScript(sentences[0]);
+    resetPracticeState();
+  };
+
+  const handleCustomClear = () => {
+    setCustomSentences([]);
+    setSentenceIndex(0);
+    setScript(getRandomScript());
+    resetPracticeState();
+  };
+
+  const handleSentenceNav = (dir: -1 | 1) => {
+    const next = sentenceIndex + dir;
+    if (next < 0 || next >= customSentences.length) return;
+    setSentenceIndex(next);
+    setScript(customSentences[next]);
+    resetPracticeState();
+  };
 
   const handleListen = useCallback(() => {
     if (!window.speechSynthesis) {
