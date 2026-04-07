@@ -42,11 +42,13 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
   const charCount = text.length;
   const MAX_CHARS = 3000;
 
-  const handleSubmit = () => {
-    const sentences = text
-      .split("\n")
+  const splitSentences = (t: string) =>
+    t.split(/[\n.]/)
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
+
+  const handleSubmit = () => {
+    const sentences = splitSentences(text);
     if (sentences.length === 0) return;
     onSubmit(sentences);
     setIsOpen(false);
@@ -113,7 +115,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             <div className="max-w-3xl mx-auto rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-foreground">
-                  연습할 문장을 입력하세요 (엔터로 구분)
+                  연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
                 </p>
                 <span
                   className={`text-xs ${
@@ -153,7 +155,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                     onClick={handleSubmit}
                     disabled={charCount === 0 || charCount > MAX_CHARS}
                   >
-                    연습 시작 ({text.split("\n").filter((s) => s.trim()).length}문장)
+                    연습 시작 ({splitSentences(text).length}문장)
                   </Button>
                 </div>
               </div>
@@ -166,8 +168,9 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   </p>
                   <div className="space-y-2 max-h-[200px] overflow-y-auto">
                     {saved.map((s) => {
-                      const preview = s.text.split("\n").filter((l) => l.trim()).slice(0, 2).join(" / ");
-                      const count = s.text.split("\n").filter((l) => l.trim()).length;
+                      const parts = splitSentences(s.text);
+                      const preview = parts.slice(0, 2).join(" / ");
+                      const count = parts.length;
                       return (
                         <div
                           key={s.id}
