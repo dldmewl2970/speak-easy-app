@@ -158,17 +158,6 @@ const Index = () => {
     setIsListening(true);
   }, [isListening]);
 
-  const handleNewScript = () => {
-    setScript(getRandomScript(script, difficulty));
-    resetPracticeState();
-  };
-
-  const handleDifficultyChange = (d: Difficulty | undefined) => {
-    setDifficulty(d);
-    setScript(getRandomScript(script, d));
-    resetPracticeState();
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
