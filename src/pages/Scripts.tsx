@@ -165,7 +165,7 @@ const Scripts = () => {
                 className="gap-2"
               >
                 <Play className="w-4 h-4" />
-                연습 시작 ({splitSentences(text).length}문장)
+                Start Practice ({splitSentences(text).length} sentences)
               </Button>
             </div>
           </div>
