@@ -42,11 +42,13 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
   const charCount = text.length;
   const MAX_CHARS = 3000;
 
-  const handleSubmit = () => {
-    const sentences = text
-      .split("\n")
+  const splitSentences = (t: string) =>
+    t.split(/[\n.]/)
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
+
+  const handleSubmit = () => {
+    const sentences = splitSentences(text);
     if (sentences.length === 0) return;
     onSubmit(sentences);
     setIsOpen(false);
