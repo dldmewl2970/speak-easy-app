@@ -452,94 +452,111 @@ const Index = () => {
             />
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-center">
-            <Button
-              size="lg"
-              onClick={() => handleListen(false)}
-              disabled={isSpeaking || !script}
-              className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
-            >
-              <Volume2 className="w-4 h-4" />
-              {isSpeaking ? "Playing..." : "Listen"}
-            </Button>
+          {/* Listen-only mode content */}
+          {listenOnly && isCustomMode && script ? (
+            <ListenOnlyDisplay
+              sentence={script}
+              onDone={() => {
+                // Auto-advance to next sentence
+                if (sentenceIndex < customSentences.length - 1) {
+                  const next = sentenceIndex + 1;
+                  setSentenceIndex(next);
+                  setScript(customSentences[next]);
+                }
+              }}
+            />
+          ) : (
+            <>
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <Button
+                  size="lg"
+                  onClick={() => handleListen(false)}
+                  disabled={isSpeaking || !script}
+                  className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  {isSpeaking ? "Playing..." : "Listen"}
+                </Button>
 
-            <Button
-              size="lg"
-              variant={isListening ? "destructive" : "outline"}
-              onClick={handleRecord}
-              disabled={!script}
-              className="gap-2.5 text-sm px-6 rounded-xl h-11"
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="w-4 h-4" />
-                  Stop
-                </>
-              ) : (
-                <>
-                  <Mic className="w-4 h-4" />
-                  Record
-                </>
-              )}
-            </Button>
+                <Button
+                  size="lg"
+                  variant={isListening ? "destructive" : "outline"}
+                  onClick={handleRecord}
+                  disabled={!script}
+                  className="gap-2.5 text-sm px-6 rounded-xl h-11"
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="w-4 h-4" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4" />
+                      Record
+                    </>
+                  )}
+                </Button>
 
-            {audioURL && (
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => {
-                  const audio = new Audio(audioURL);
-                  audio.play();
-                }}
-                className="gap-2.5 text-sm px-6 rounded-xl h-11"
-              >
-                <Play className="w-4 h-4" />
-                My Voice
-              </Button>
-            )}
-          </div>
+                {audioURL && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => {
+                      const audio = new Audio(audioURL);
+                      audio.play();
+                    }}
+                    className="gap-2.5 text-sm px-6 rounded-xl h-11"
+                  >
+                    <Play className="w-4 h-4" />
+                    My Voice
+                  </Button>
+                )}
+              </div>
 
-          {/* Listening indicator */}
-          <AnimatePresence>
-            {isListening && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex justify-center"
-              >
-                <div className="flex items-center gap-3 bg-destructive/10 text-destructive px-5 py-2.5 rounded-full">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
-                  </span>
-                  <span className="text-sm font-medium">Listening... Speak now!</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Listening indicator */}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex justify-center"
+                  >
+                    <div className="flex items-center gap-3 bg-destructive/10 text-destructive px-5 py-2.5 rounded-full">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+                      </span>
+                      <span className="text-sm font-medium">Listening... Speak now!</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {/* Error */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="rounded-xl bg-destructive/10 border border-destructive/20 px-5 py-3 text-center"
-              >
-                <p className="text-sm text-destructive font-medium">{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="rounded-xl bg-destructive/10 border border-destructive/20 px-5 py-3 text-center"
+                  >
+                    <p className="text-sm text-destructive font-medium">{error}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {/* Feedback */}
-          <AnimatePresence>
-            {recognized && (
-              <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
-            )}
-          </AnimatePresence>
+              {/* Feedback */}
+              <AnimatePresence>
+                {recognized && (
+                  <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
+                )}
+              </AnimatePresence>
+            </>
+          )}
         </div>
       </main>
     </div>
