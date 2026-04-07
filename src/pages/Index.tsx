@@ -130,10 +130,21 @@ const Index = () => {
 
   // 음성 목록 로드 (비동기)
   useEffect(() => {
-    window.speechSynthesis?.getVoices();
-    const handler = () => {};
-    window.speechSynthesis?.addEventListener?.("voiceschanged", handler);
-    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", handler);
+    const loadVoices = () => {
+      const voices = window.speechSynthesis?.getVoices() || [];
+      const enVoices = voices.filter((v) => v.lang.startsWith("en"));
+      setAvailableVoices(enVoices);
+      // 저장된 음성 복원
+      if (!selectedVoiceName) {
+        const saved = localStorage.getItem("speakup-voice");
+        if (saved && enVoices.find((v) => v.name === saved)) {
+          setSelectedVoiceName(saved);
+        }
+      }
+    };
+    loadVoices();
+    window.speechSynthesis?.addEventListener?.("voiceschanged", loadVoices);
+    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", loadVoices);
   }, []);
 
   // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작
