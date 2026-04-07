@@ -1,10 +1,10 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
-import CustomScriptInput from "@/components/CustomScriptInput";
 import SentenceNav from "@/components/SentenceNav";
 
 const SpeechRecognitionAPI =
