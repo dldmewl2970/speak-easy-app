@@ -19,7 +19,7 @@ function loadSavedScripts(): SavedScript[] {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     return data.map((s: any) => ({
       ...s,
-      name: s.name || `스크립트 ${new Date(s.createdAt).toLocaleDateString()}`,
+      name: s.name || `Script ${new Date(s.createdAt).toLocaleDateString()}`,
     }));
   } catch {
     return [];
@@ -54,7 +54,7 @@ const Scripts = () => {
 
   const handleSave = () => {
     if (!text.trim()) return;
-    const name = scriptName.trim() || `스크립트 ${saved.length + 1}`;
+    const name = scriptName.trim() || `Script ${saved.length + 1}`;
     const entry: SavedScript = { id: crypto.randomUUID(), name, text, createdAt: Date.now() };
     const updated = [entry, ...saved].slice(0, 20);
     setSaved(updated);
@@ -105,7 +105,7 @@ const Scripts = () => {
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <h1 className="text-lg font-bold tracking-tight text-foreground">
-              내 스크립트
+              My Scripts
             </h1>
           </div>
         </div>
@@ -117,7 +117,7 @@ const Scripts = () => {
           <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-foreground">
-                연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
+                Enter sentences to practice (separated by Enter or period)
               </p>
               <span
                 className={`text-xs ${
@@ -141,7 +141,7 @@ const Scripts = () => {
               <Input
                 value={scriptName}
                 onChange={(e) => setScriptName(e.target.value)}
-                placeholder="스크립트 이름 (예: 비즈니스 영어)"
+                placeholder="Script name (e.g. Business English)"
                 className="flex-1 h-9 text-sm"
                 maxLength={50}
               />
@@ -153,7 +153,7 @@ const Scripts = () => {
                 className="gap-2 shrink-0"
               >
                 <Save className="w-4 h-4" />
-                저장
+                Save
               </Button>
             </div>
 
@@ -165,7 +165,7 @@ const Scripts = () => {
                 className="gap-2"
               >
                 <Play className="w-4 h-4" />
-                연습 시작 ({splitSentences(text).length}문장)
+                Start Practice ({splitSentences(text).length} sentences)
               </Button>
             </div>
           </div>
@@ -174,7 +174,7 @@ const Scripts = () => {
           {saved.length > 0 && (
             <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
               <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                저장된 스크립트
+                Saved Scripts
               </p>
               <div className="space-y-2">
                 {saved.map((s) => {
@@ -208,7 +208,7 @@ const Scripts = () => {
                             {s.name}
                           </span>
                           <span className="text-xs text-muted-foreground ml-2">
-                            {count}문장
+                            {count} sentences
                           </span>
                         </button>
                       )}

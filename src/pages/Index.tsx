@@ -102,7 +102,7 @@ const Index = () => {
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!window.speechSynthesis) {
-      setError("이 브라우저는 음성 합성을 지원하지 않습니다.");
+      setError("This browser does not support speech synthesis.");
       return;
     }
     if (!script) return;
@@ -123,7 +123,7 @@ const Index = () => {
     };
     utterance.onerror = () => {
       setIsSpeaking(false);
-      setError("음성 재생 중 오류가 발생했습니다.");
+      setError("An error occurred during audio playback.");
     };
     window.speechSynthesis.speak(utterance);
   }, [script, getBestVoice]);
@@ -183,7 +183,7 @@ const Index = () => {
   const handleRecord = useCallback(() => {
     if (!SpeechRecognitionAPI) {
       setError(
-        "이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 또는 Edge를 사용해주세요."
+        "This browser does not support speech recognition. Please use Chrome or Edge."
       );
       return;
     }
@@ -263,17 +263,17 @@ const Index = () => {
 
     recognition.onerror = (event: any) => {
       if (event.error === "not-allowed") {
-        setError("마이크 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.");
+        setError("Microphone permission denied. Please allow it in your browser settings.");
         stopRecording();
       } else if (event.error === "no-speech") {
         // 무시 — 무음 감지로 처리
       } else if (event.error === "network") {
         setError(
-          "네트워크 오류: Chrome 음성 인식은 Google 서버와 통신이 필요합니다."
+          "Network error: Chrome speech recognition requires a connection to Google servers."
         );
         stopRecording();
       } else {
-        setError(`음성 인식 오류: ${event.error}`);
+        setError(`Speech recognition error: ${event.error}`);
         stopRecording();
       }
     };
@@ -323,10 +323,10 @@ const Index = () => {
                 }}
               >
                 <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
-                  <SelectValue placeholder="음성 선택" />
+                  <SelectValue placeholder="Select Voice" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">🔊 자동 선택</SelectItem>
+                  <SelectItem value="auto">🔊 Auto</SelectItem>
                   {availableVoices.map((v) => (
                     <SelectItem key={v.name} value={v.name}>
                       {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
@@ -343,7 +343,7 @@ const Index = () => {
                 className="gap-1.5 text-muted-foreground h-8 text-xs"
               >
                 <X className="w-3.5 h-3.5" />
-                해제
+                Clear
               </Button>
             ) : (
               <Button
@@ -353,7 +353,7 @@ const Index = () => {
                 className="gap-1.5 h-8 text-xs rounded-lg"
               >
                 <FileText className="w-3.5 h-3.5" />
-                내 스크립트
+                My Scripts
               </Button>
             )}
           </div>
@@ -383,7 +383,7 @@ const Index = () => {
               className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
             >
               <Volume2 className="w-4 h-4" />
-              {isSpeaking ? "재생 중..." : "원어민 듣기"}
+              {isSpeaking ? "Playing..." : "Listen"}
             </Button>
 
             <Button
@@ -396,12 +396,12 @@ const Index = () => {
               {isListening ? (
                 <>
                   <MicOff className="w-4 h-4" />
-                  녹음 중지
+                  Stop
                 </>
               ) : (
                 <>
                   <Mic className="w-4 h-4" />
-                  녹음하기
+                  Record
                 </>
               )}
             </Button>
@@ -417,7 +417,7 @@ const Index = () => {
                 className="gap-2.5 text-sm px-6 rounded-xl h-11"
               >
                 <Play className="w-4 h-4" />
-                내 발음
+                My Voice
               </Button>
             )}
           </div>
@@ -436,7 +436,7 @@ const Index = () => {
                     <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
                   </span>
-                  <span className="text-sm font-medium">듣고 있습니다... 말해보세요!</span>
+                  <span className="text-sm font-medium">Listening... Speak now!</span>
                 </div>
               </motion.div>
             )}

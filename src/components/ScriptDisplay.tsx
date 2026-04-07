@@ -31,9 +31,9 @@ const ScriptDisplay = ({ script }: ScriptDisplayProps) => {
           <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
             <FileText className="w-6 h-6 opacity-50" />
           </div>
-          <p className="text-base font-semibold">스크립트를 불러와주세요</p>
+          <p className="text-base font-semibold">No script loaded</p>
           <p className="text-sm mt-1.5 opacity-70">
-            우측 상단의 "내 스크립트"를 눌러 문장을 추가하세요
+            Tap "My Scripts" in the top right to add sentences
           </p>
         </div>
       )}

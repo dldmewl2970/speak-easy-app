@@ -42,9 +42,9 @@ export const practiceScripts: Script[] = [
 ];
 
 export const difficultyLabels: Record<Difficulty, string> = {
-  beginner: "초급",
-  intermediate: "중급",
-  advanced: "고급",
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
 };
 
 export const difficultyColors: Record<Difficulty, string> = {

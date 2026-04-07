@@ -93,10 +93,10 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
       <div className={`px-6 py-4 ${scoreBg} flex items-center justify-between`}>
         <div className="flex items-center gap-2">
           <ScoreIcon className={`w-5 h-5 ${scoreColor}`} />
-          <span className="text-sm font-semibold text-foreground">발음 피드백</span>
+          <span className="text-sm font-semibold text-foreground">Pronunciation Feedback</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">정확도</span>
+          <span className="text-xs text-muted-foreground">Accuracy</span>
           <span className={`text-2xl font-extrabold ${scoreColor} tabular-nums`}>
             {score}%
           </span>
@@ -132,11 +132,11 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
           {isTranslating ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              번역 중...
+              Translating...
             </div>
           ) : (
             <p className="text-sm text-foreground leading-relaxed">
-              {translation || "번역을 불러올 수 없습니다."}
+              {translation || "Translation unavailable."}
             </p>
           )}
         </div>
@@ -151,7 +151,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
             className="gap-2 rounded-xl h-10"
           >
             <Volume2 className="w-4 h-4" />
-            {isPlayingNative ? "재생 중..." : "원어민 발음"}
+            {isPlayingNative ? "Playing..." : "Native"}
           </Button>
           <Button
             variant="outline"
@@ -161,7 +161,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
             className="gap-2 rounded-xl h-10"
           >
             <Play className="w-4 h-4" />
-            {isPlayingMine ? "재생 중..." : "내 발음"}
+            {isPlayingMine ? "Playing..." : "My Voice"}
           </Button>
         </div>
 
@@ -169,7 +169,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
         {recognized && (
           <div className="pt-4 border-t border-border">
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-2">
-              내가 말한 것
+              What I Said
             </p>
             <p className="text-base text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {recognized}

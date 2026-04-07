@@ -20,7 +20,7 @@ function loadSavedScripts(): SavedScript[] {
     // migrate old format without name
     return data.map((s: any) => ({
       ...s,
-      name: s.name || `스크립트 ${new Date(s.createdAt).toLocaleDateString()}`,
+      name: s.name || `Script ${new Date(s.createdAt).toLocaleDateString()}`,
     }));
   } catch {
     return [];
@@ -68,7 +68,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
 
   const handleSave = () => {
     if (!text.trim()) return;
-    const name = scriptName.trim() || `스크립트 ${saved.length + 1}`;
+    const name = scriptName.trim() || `Script ${saved.length + 1}`;
     const entry: SavedScript = { id: crypto.randomUUID(), name, text, createdAt: Date.now() };
     const updated = [entry, ...saved].slice(0, 20);
     setSaved(updated);
@@ -113,7 +113,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
         className="gap-2 text-muted-foreground"
       >
         <X className="w-4 h-4" />
-        커스텀 해제
+        Clear Custom
       </Button>
     );
   }
@@ -127,7 +127,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
         className="gap-2 text-muted-foreground"
       >
         <FileText className="w-4 h-4" />
-        내 스크립트
+        My Scripts
       </Button>
 
       <AnimatePresence>
@@ -141,7 +141,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             <div className="max-w-6xl mx-auto rounded-2xl bg-card border border-border p-5 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-foreground">
-                  연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
+                  Enter sentences to practice (separated by Enter or period)
                 </p>
                 <span
                   className={`text-xs ${
@@ -165,7 +165,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                 <Input
                   value={scriptName}
                   onChange={(e) => setScriptName(e.target.value)}
-                  placeholder="스크립트 이름 (예: 비즈니스 영어)"
+                  placeholder="Script name (e.g. Business English)"
                   className="flex-1 h-9 text-sm"
                   maxLength={50}
                 />
@@ -177,19 +177,19 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   className="gap-2 shrink-0"
                 >
                   <Save className="w-4 h-4" />
-                  저장
+                  Save
                 </Button>
               </div>
               <div className="flex justify-end gap-3">
                 <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
-                  취소
+                  Cancel
                 </Button>
                 <Button
                   size="sm"
                   onClick={handleSubmit}
                   disabled={charCount === 0 || charCount > MAX_CHARS}
                 >
-                  연습 시작 ({splitSentences(text).length}문장)
+                  Start Practice ({splitSentences(text).length} sentences)
                 </Button>
               </div>
 
@@ -197,7 +197,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
               {saved.length > 0 && (
                 <div className="border-t border-border pt-4 space-y-2">
                   <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    저장된 스크립트
+                    Saved Scripts
                   </p>
                   <div className="space-y-2 max-h-[240px] overflow-y-auto">
                     {saved.map((s) => {
@@ -231,7 +231,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                                 {s.name}
                               </span>
                               <span className="text-xs text-muted-foreground ml-2">
-                                {count}문장
+                                {count} sentences
                               </span>
                             </button>
                           )}
