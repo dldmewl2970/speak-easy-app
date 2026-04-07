@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
+import { Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
 
 interface FeedbackDisplayProps {
   original: string;
   recognized: string;
+  audioURL?: string | null;
 }
 
 function normalize(text: string): string[] {
