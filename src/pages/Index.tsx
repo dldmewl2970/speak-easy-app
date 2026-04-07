@@ -101,7 +101,12 @@ const Index = () => {
       }
     };
 
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      setIsListening(false);
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+    };
 
     recognitionRef.current = recognition;
     recognition.start();
