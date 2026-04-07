@@ -269,7 +269,7 @@ const Index = () => {
         // 무시 — 무음 감지로 처리
       } else if (event.error === "network") {
         setError(
-          "네트워크 오류: Chrome 음성 인식은 Google 서버와 통신이 필요합니다."
+          "Network error: Chrome speech recognition requires a connection to Google servers."
         );
         stopRecording();
       } else {
