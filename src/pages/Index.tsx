@@ -123,7 +123,7 @@ const Index = () => {
     };
     utterance.onerror = () => {
       setIsSpeaking(false);
-      setError("음성 재생 중 오류가 발생했습니다.");
+      setError("An error occurred during audio playback.");
     };
     window.speechSynthesis.speak(utterance);
   }, [script, getBestVoice]);
