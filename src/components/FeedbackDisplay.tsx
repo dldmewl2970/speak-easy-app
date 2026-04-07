@@ -88,9 +88,22 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
 
       {recognized && (
         <div className="pt-4 border-t border-border">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
-            내가 말한 것
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              내가 말한 것
+            </p>
+            {audioURL && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePlayback}
+                className="gap-2 text-xs"
+              >
+                <Play className="w-3 h-3" />
+                {isPlaying ? "재생 중..." : "내 발음 듣기"}
+              </Button>
+            )}
+          </div>
           <p className="text-lg text-muted-foreground" style={{ fontFamily: "var(--font-mono)" }}>
             {recognized}
           </p>

@@ -224,7 +224,7 @@ const Index = () => {
           {/* Feedback */}
           <AnimatePresence>
             {recognized && (
-              <FeedbackDisplay original={script} recognized={recognized} />
+              <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
             )}
           </AnimatePresence>
         </div>
