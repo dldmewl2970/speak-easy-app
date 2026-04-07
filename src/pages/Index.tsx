@@ -117,6 +117,7 @@ const Index = () => {
     setScript(getRandomScript(script));
     setRecognized("");
     setError(null);
+    setAudioURL(null);
     window.speechSynthesis?.cancel();
     if (recognitionRef.current) {
       recognitionRef.current.stop();
