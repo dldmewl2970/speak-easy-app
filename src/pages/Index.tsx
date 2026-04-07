@@ -21,6 +21,8 @@ const Index = () => {
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
