@@ -48,7 +48,7 @@ const Index = () => {
   const handleCustomClear = () => {
     setCustomSentences([]);
     setSentenceIndex(0);
-    setScript(getRandomScript());
+    setScript(getRandomScript(undefined, difficulty));
     resetPracticeState();
   };
 
