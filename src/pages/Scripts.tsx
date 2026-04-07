@@ -174,7 +174,7 @@ const Scripts = () => {
           {saved.length > 0 && (
             <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
               <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                저장된 스크립트
+                Saved Scripts
               </p>
               <div className="space-y-2">
                 {saved.map((s) => {
