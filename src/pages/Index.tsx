@@ -11,6 +11,7 @@ const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const Index = () => {
+  const navigate = useNavigate();
   const [script, setScript] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -25,6 +26,22 @@ const Index = () => {
 
   const isCustomMode = customSentences.length > 0;
 
+  // Load sentences from sessionStorage (set by Scripts page)
+  useEffect(() => {
+    const data = sessionStorage.getItem("speakup-active-sentences");
+    if (data) {
+      try {
+        const sentences = JSON.parse(data);
+        if (Array.isArray(sentences) && sentences.length > 0) {
+          setCustomSentences(sentences);
+          setSentenceIndex(0);
+          setScript(sentences[0]);
+        }
+      } catch {}
+      sessionStorage.removeItem("speakup-active-sentences");
+    }
+  }, []);
+
   const resetPracticeState = () => {
     setRecognized("");
     setError(null);
@@ -34,13 +51,6 @@ const Index = () => {
       recognitionRef.current.stop();
       setIsListening(false);
     }
-  };
-
-  const handleCustomSubmit = (sentences: string[]) => {
-    setCustomSentences(sentences);
-    setSentenceIndex(0);
-    setScript(sentences[0]);
-    resetPracticeState();
   };
 
   const handleCustomClear = () => {
