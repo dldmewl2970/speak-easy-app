@@ -69,8 +69,14 @@ const Index = () => {
       mediaRecorder.onstop = () => {
         const mimeType = mediaRecorder.mimeType || "audio/webm";
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
-        setAudioURL(URL.createObjectURL(blob));
+        const url = URL.createObjectURL(blob);
+        setAudioURL(url);
         stream.getTracks().forEach((t) => t.stop());
+        // 녹음 완료 후 자동 재생
+        setTimeout(() => {
+          const audio = new Audio(url);
+          audio.play().catch(() => {});
+        }, 300);
       };
       mediaRecorder.start();
       mediaRecorderRef.current = mediaRecorder;
