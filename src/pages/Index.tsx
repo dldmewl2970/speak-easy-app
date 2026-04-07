@@ -323,7 +323,7 @@ const Index = () => {
                 }}
               >
                 <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
-                  <SelectValue placeholder="음성 선택" />
+                  <SelectValue placeholder="Select Voice" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="auto">🔊 자동 선택</SelectItem>
