@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Play } from "lucide-react";
+import { Play, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 
 interface FeedbackDisplayProps {
   original: string;
