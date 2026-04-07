@@ -13,6 +13,7 @@ interface ListenOnlyDisplayProps {
   sentence: string;
   onDone: () => void;
   delaySeconds?: number;
+  repeatCount?: number;
 }
 
 const renderProsody = (prosody: string) => {
@@ -41,35 +42,54 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4 }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1 }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
+  const [currentRepeat, setCurrentRepeat] = useState(0);
 
-  // Play TTS
+  // Play TTS with repeat support
   useEffect(() => {
     if (!sentence) return;
     setTtsFinished(false);
+    setCurrentRepeat(0);
 
-    const timer = setTimeout(() => {
-      if (!window.speechSynthesis) {
-        setTtsFinished(true);
+    let cancelled = false;
+    let playCount = 0;
+
+    const playOnce = () => {
+      if (cancelled || !window.speechSynthesis) {
+        if (!cancelled) setTtsFinished(true);
         return;
       }
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(sentence);
       utterance.lang = "en-US";
       utterance.rate = 0.92;
-      utterance.onend = () => setTtsFinished(true);
-      utterance.onerror = () => setTtsFinished(true);
+      utterance.onend = () => {
+        if (cancelled) return;
+        playCount++;
+        setCurrentRepeat(playCount);
+        if (playCount < repeatCount) {
+          setTimeout(() => playOnce(), 800);
+        } else {
+          setTtsFinished(true);
+        }
+      };
+      utterance.onerror = () => {
+        if (!cancelled) setTtsFinished(true);
+      };
       window.speechSynthesis.speak(utterance);
-    }, 300);
+    };
+
+    const timer = setTimeout(() => playOnce(), 300);
 
     return () => {
+      cancelled = true;
       clearTimeout(timer);
       window.speechSynthesis?.cancel();
     };
-  }, [sentence]);
+  }, [sentence, repeatCount]);
 
   // Fetch analysis
   useEffect(() => {
@@ -110,7 +130,9 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4 }: ListenOnlyDis
       <div className="px-6 py-3 bg-primary/10 flex items-center gap-2">
         <span className="text-sm font-semibold text-foreground">Listen Only Mode</span>
         {!ttsFinished && (
-          <span className="text-xs text-muted-foreground animate-pulse">♪ Playing...</span>
+          <span className="text-xs text-muted-foreground animate-pulse">
+            ♪ Playing{repeatCount > 1 ? ` (${currentRepeat + 1}/${repeatCount})` : ""}...
+          </span>
         )}
       </div>
 
