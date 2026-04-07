@@ -93,7 +93,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
       <div className={`px-6 py-4 ${scoreBg} flex items-center justify-between`}>
         <div className="flex items-center gap-2">
           <ScoreIcon className={`w-5 h-5 ${scoreColor}`} />
-          <span className="text-sm font-semibold text-foreground">발음 피드백</span>
+          <span className="text-sm font-semibold text-foreground">Pronunciation Feedback</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-muted-foreground">정확도</span>
