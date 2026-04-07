@@ -273,7 +273,7 @@ const Index = () => {
         );
         stopRecording();
       } else {
-        setError(`음성 인식 오류: ${event.error}`);
+        setError(`Speech recognition error: ${event.error}`);
         stopRecording();
       }
     };
