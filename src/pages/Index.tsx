@@ -423,19 +423,36 @@ const Index = () => {
               I can't record my voice (listen-only mode)
             </label>
             {listenOnly && (
-              <div className="flex items-center gap-2 ml-4">
-                <label className="text-xs text-muted-foreground whitespace-nowrap">Delay:</label>
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  step={1}
-                  value={autoAdvanceDelay}
-                  onChange={(e) => setAutoAdvanceDelay(Number(e.target.value))}
-                  className="w-20 h-1.5 accent-primary"
-                />
-                <span className="text-xs text-muted-foreground font-mono w-6">{autoAdvanceDelay}s</span>
-              </div>
+              <>
+                <div className="flex items-center gap-2 ml-4">
+                  <label className="text-xs text-muted-foreground whitespace-nowrap">Repeat:</label>
+                  {[1, 2, 3].map((n) => (
+                    <label key={n} className="flex items-center gap-1 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="repeatCount"
+                        checked={repeatCount === n}
+                        onChange={() => setRepeatCount(n)}
+                        className="accent-primary w-3.5 h-3.5"
+                      />
+                      <span className="text-xs text-muted-foreground">{n}×</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <label className="text-xs text-muted-foreground whitespace-nowrap">Delay:</label>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={autoAdvanceDelay}
+                    onChange={(e) => setAutoAdvanceDelay(Number(e.target.value))}
+                    className="w-20 h-1.5 accent-primary"
+                  />
+                  <span className="text-xs text-muted-foreground font-mono w-6">{autoAdvanceDelay}s</span>
+                </div>
+              </>
             )}
           </div>
 
