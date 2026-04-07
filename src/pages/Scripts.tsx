@@ -54,7 +54,7 @@ const Scripts = () => {
 
   const handleSave = () => {
     if (!text.trim()) return;
-    const name = scriptName.trim() || `스크립트 ${saved.length + 1}`;
+    const name = scriptName.trim() || `Script ${saved.length + 1}`;
     const entry: SavedScript = { id: crypto.randomUUID(), name, text, createdAt: Date.now() };
     const updated = [entry, ...saved].slice(0, 20);
     setSaved(updated);
