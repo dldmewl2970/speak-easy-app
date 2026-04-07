@@ -155,7 +155,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                     onClick={handleSubmit}
                     disabled={charCount === 0 || charCount > MAX_CHARS}
                   >
-                    연습 시작 ({text.split("\n").filter((s) => s.trim()).length}문장)
+                    연습 시작 ({splitSentences(text).length}문장)
                   </Button>
                 </div>
               </div>
