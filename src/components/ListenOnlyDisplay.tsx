@@ -12,6 +12,7 @@ interface AnalysisResult {
 interface ListenOnlyDisplayProps {
   sentence: string;
   onDone: () => void;
+  delaySeconds?: number;
 }
 
 const renderProsody = (prosody: string) => {
