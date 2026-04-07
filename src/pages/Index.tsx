@@ -70,7 +70,9 @@ const Index = () => {
       } else if (event.error === "no-speech") {
         setError("음성이 감지되지 않았습니다. 다시 시도해주세요.");
       } else if (event.error === "network") {
-        setError("네트워크 오류가 발생했습니다.");
+        setError(
+          "네트워크 오류: Chrome 음성 인식은 Google 서버와 통신이 필요합니다. 앱을 새 탭에서 직접 열거나, 브라우저 주소창에 URL을 입력해 접속해주세요."
+        );
       } else {
         setError(`음성 인식 오류: ${event.error}`);
       }
