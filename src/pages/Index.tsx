@@ -13,9 +13,18 @@ import { splitSentences } from "@/pages/Scripts";
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+interface SavedScript {
+  id: string;
+  name: string;
+  text: string;
+}
+
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [script, setScript] = useState("");
+  const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
+  const [showScriptList, setShowScriptList] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
