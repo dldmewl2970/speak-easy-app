@@ -343,7 +343,7 @@ const Index = () => {
                 className="gap-1.5 text-muted-foreground h-8 text-xs"
               >
                 <X className="w-3.5 h-3.5" />
-                해제
+                Clear
               </Button>
             ) : (
               <Button
