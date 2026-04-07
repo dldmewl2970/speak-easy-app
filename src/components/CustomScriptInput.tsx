@@ -168,8 +168,9 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   </p>
                   <div className="space-y-2 max-h-[200px] overflow-y-auto">
                     {saved.map((s) => {
-                      const preview = s.text.split("\n").filter((l) => l.trim()).slice(0, 2).join(" / ");
-                      const count = s.text.split("\n").filter((l) => l.trim()).length;
+                      const parts = splitSentences(s.text);
+                      const preview = parts.slice(0, 2).join(" / ");
+                      const count = parts.length;
                       return (
                         <div
                           key={s.id}
