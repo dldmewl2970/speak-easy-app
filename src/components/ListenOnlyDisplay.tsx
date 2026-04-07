@@ -130,7 +130,9 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
       <div className="px-6 py-3 bg-primary/10 flex items-center gap-2">
         <span className="text-sm font-semibold text-foreground">Listen Only Mode</span>
         {!ttsFinished && (
-          <span className="text-xs text-muted-foreground animate-pulse">♪ Playing...</span>
+          <span className="text-xs text-muted-foreground animate-pulse">
+            ♪ Playing{repeatCount > 1 ? ` (${currentRepeat + 1}/${repeatCount})` : ""}...
+          </span>
         )}
       </div>
 
