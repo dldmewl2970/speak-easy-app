@@ -263,7 +263,7 @@ const Index = () => {
 
     recognition.onerror = (event: any) => {
       if (event.error === "not-allowed") {
-        setError("마이크 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.");
+        setError("Microphone permission denied. Please allow it in your browser settings.");
         stopRecording();
       } else if (event.error === "no-speech") {
         // 무시 — 무음 감지로 처리
