@@ -344,7 +344,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={handleListen}
+                onClick={() => handleListen(false)}
                 disabled={isSpeaking}
                 className="gap-2 rounded-xl"
               >
