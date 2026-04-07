@@ -491,6 +491,7 @@ const Index = () => {
             <ListenOnlyDisplay
               sentence={script}
               delaySeconds={autoAdvanceDelay}
+              repeatCount={repeatCount}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {

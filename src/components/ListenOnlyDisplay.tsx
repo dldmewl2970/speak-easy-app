@@ -48,30 +48,48 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
   const [ttsFinished, setTtsFinished] = useState(false);
   const [currentRepeat, setCurrentRepeat] = useState(0);
 
-  // Play TTS
+  // Play TTS with repeat support
   useEffect(() => {
     if (!sentence) return;
     setTtsFinished(false);
+    setCurrentRepeat(0);
 
-    const timer = setTimeout(() => {
-      if (!window.speechSynthesis) {
-        setTtsFinished(true);
+    let cancelled = false;
+    let playCount = 0;
+
+    const playOnce = () => {
+      if (cancelled || !window.speechSynthesis) {
+        if (!cancelled) setTtsFinished(true);
         return;
       }
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(sentence);
       utterance.lang = "en-US";
       utterance.rate = 0.92;
-      utterance.onend = () => setTtsFinished(true);
-      utterance.onerror = () => setTtsFinished(true);
+      utterance.onend = () => {
+        if (cancelled) return;
+        playCount++;
+        setCurrentRepeat(playCount);
+        if (playCount < repeatCount) {
+          setTimeout(() => playOnce(), 800);
+        } else {
+          setTtsFinished(true);
+        }
+      };
+      utterance.onerror = () => {
+        if (!cancelled) setTtsFinished(true);
+      };
       window.speechSynthesis.speak(utterance);
-    }, 300);
+    };
+
+    const timer = setTimeout(() => playOnce(), 300);
 
     return () => {
+      cancelled = true;
       clearTimeout(timer);
       window.speechSynthesis?.cancel();
     };
-  }, [sentence]);
+  }, [sentence, repeatCount]);
 
   // Fetch analysis
   useEffect(() => {
