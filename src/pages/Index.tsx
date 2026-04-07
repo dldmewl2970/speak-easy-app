@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
@@ -20,6 +21,8 @@ const Index = () => {
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -75,7 +78,11 @@ const Index = () => {
   // 자연스러운 영어 음성 선택
   const getBestVoice = useCallback(() => {
     const voices = window.speechSynthesis?.getVoices() || [];
-    // 우선순위: Google UK > Google US > Microsoft > 기본 en-US
+    // 사용자가 선택한 음성이 있으면 우선 사용
+    if (selectedVoiceName) {
+      const selected = voices.find((v) => v.name === selectedVoiceName);
+      if (selected) return selected;
+    }
     const preferred = [
       "Google UK English Female",
       "Google UK English Male",
@@ -91,7 +98,7 @@ const Index = () => {
       if (v) return v;
     }
     return voices.find((v) => v.lang.startsWith("en")) || null;
-  }, []);
+  }, [selectedVoiceName]);
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!window.speechSynthesis) {
@@ -123,10 +130,21 @@ const Index = () => {
 
   // 음성 목록 로드 (비동기)
   useEffect(() => {
-    window.speechSynthesis?.getVoices();
-    const handler = () => {};
-    window.speechSynthesis?.addEventListener?.("voiceschanged", handler);
-    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", handler);
+    const loadVoices = () => {
+      const voices = window.speechSynthesis?.getVoices() || [];
+      const enVoices = voices.filter((v) => v.lang.startsWith("en"));
+      setAvailableVoices(enVoices);
+      // 저장된 음성 복원
+      if (!selectedVoiceName) {
+        const saved = localStorage.getItem("speakup-voice");
+        if (saved && enVoices.find((v) => v.name === saved)) {
+          setSelectedVoiceName(saved);
+        }
+      }
+    };
+    loadVoices();
+    window.speechSynthesis?.addEventListener?.("voiceschanged", loadVoices);
+    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", loadVoices);
   }, []);
 
   // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작
@@ -295,6 +313,28 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            {availableVoices.length > 0 && (
+              <Select
+                value={selectedVoiceName || "auto"}
+                onValueChange={(val) => {
+                  const name = val === "auto" ? "" : val;
+                  setSelectedVoiceName(name);
+                  localStorage.setItem("speakup-voice", name);
+                }}
+              >
+                <SelectTrigger className="w-[180px] h-8 text-xs">
+                  <SelectValue placeholder="음성 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">🔊 자동 선택</SelectItem>
+                  {availableVoices.map((v) => (
+                    <SelectItem key={v.name} value={v.name}>
+                      {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             {isCustomMode ? (
               <Button
                 variant="ghost"
