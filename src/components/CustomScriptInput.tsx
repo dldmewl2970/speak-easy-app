@@ -141,7 +141,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             <div className="max-w-6xl mx-auto rounded-2xl bg-card border border-border p-5 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-foreground">
-                  연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
+                  Enter sentences to practice (separated by Enter or period)
                 </p>
                 <span
                   className={`text-xs ${
