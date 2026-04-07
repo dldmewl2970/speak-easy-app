@@ -96,7 +96,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
           <span className="text-sm font-semibold text-foreground">Pronunciation Feedback</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">정확도</span>
+          <span className="text-xs text-muted-foreground">Accuracy</span>
           <span className={`text-2xl font-extrabold ${scoreColor} tabular-nums`}>
             {score}%
           </span>
