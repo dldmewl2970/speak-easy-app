@@ -27,6 +27,7 @@ const Index = () => {
   const [script, setScript] = useState("");
   const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
   const [showScriptList, setShowScriptList] = useState(false);
+  const [listenOnly, setListenOnly] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
