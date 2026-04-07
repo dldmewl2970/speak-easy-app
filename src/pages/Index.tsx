@@ -102,7 +102,7 @@ const Index = () => {
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!window.speechSynthesis) {
-      setError("이 브라우저는 음성 합성을 지원하지 않습니다.");
+      setError("This browser does not support speech synthesis.");
       return;
     }
     if (!script) return;
