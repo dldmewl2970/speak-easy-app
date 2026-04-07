@@ -151,7 +151,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
             className="gap-2 rounded-xl h-10"
           >
             <Volume2 className="w-4 h-4" />
-            {isPlayingNative ? "재생 중..." : "원어민 발음"}
+            {isPlayingNative ? "Playing..." : "Native"}
           </Button>
           <Button
             variant="outline"
