@@ -91,12 +91,12 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4 }: ListenOnlyDis
       .finally(() => setIsAnalyzing(false));
   }, [sentence]);
 
-  // Auto-advance after TTS done + analysis loaded + 3s delay
+  // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {
     if (!ttsFinished || isAnalyzing) return;
     const timer = setTimeout(() => {
       onDone();
-    }, 4000);
+    }, delaySeconds * 1000);
     return () => clearTimeout(timer);
   }, [ttsFinished, isAnalyzing, onDone]);
 

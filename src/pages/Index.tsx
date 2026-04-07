@@ -457,6 +457,7 @@ const Index = () => {
           {listenOnly && isCustomMode && script ? (
             <ListenOnlyDisplay
               sentence={script}
+              delaySeconds={autoAdvanceDelay}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {
