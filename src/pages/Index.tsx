@@ -172,17 +172,6 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2 relative">
-            {!isCustomMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleNewScript}
-                className="gap-2 text-muted-foreground"
-              >
-                <RefreshCw className="w-4 h-4" />
-                새 문장
-              </Button>
-            )}
             <CustomScriptInput
               onSubmit={handleCustomSubmit}
               isActive={isCustomMode}
