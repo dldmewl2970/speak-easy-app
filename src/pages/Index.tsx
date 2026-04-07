@@ -326,7 +326,7 @@ const Index = () => {
                   <SelectValue placeholder="Select Voice" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">🔊 자동 선택</SelectItem>
+                  <SelectItem value="auto">🔊 Auto</SelectItem>
                   {availableVoices.map((v) => (
                     <SelectItem key={v.name} value={v.name}>
                       {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
