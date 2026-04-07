@@ -17,7 +17,21 @@ function normalize(text: string): string[] {
     .filter(Boolean);
 }
 
-const FeedbackDisplay = ({ original, recognized }: FeedbackDisplayProps) => {
+const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProps) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayback = () => {
+    if (!audioURL) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const audio = new Audio(audioURL);
+    audioRef.current = audio;
+    audio.onplay = () => setIsPlaying(true);
+    audio.onended = () => setIsPlaying(false);
+    audio.play();
+  };
   const origWords = normalize(original);
   const recWords = normalize(recognized);
 
