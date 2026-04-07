@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Volume2 } from "lucide-react";
+import { Play, Volume2, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useCallback } from "react";
 
@@ -53,97 +53,96 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
     audio.onended = () => setIsPlayingMine(false);
     audio.play();
   };
+
   const origWords = normalize(original);
   const recWords = normalize(recognized);
-
   const matchCount = origWords.filter((w, i) => recWords[i] === w).length;
   const score = origWords.length > 0 ? Math.round((matchCount / origWords.length) * 100) : 0;
+
+  const scoreColor = score >= 80 ? "text-accent" : score >= 50 ? "text-warning" : "text-destructive";
+  const scoreBg = score >= 80 ? "bg-accent/10" : score >= 50 ? "bg-warning/10" : "bg-destructive/10";
+  const ScoreIcon = score >= 80 ? CheckCircle2 : XCircle;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-2xl bg-card border border-border p-8 shadow-lg space-y-6"
+      className="rounded-2xl bg-card border border-border shadow-sm overflow-hidden"
     >
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          발음 피드백
-        </p>
+      {/* Score header */}
+      <div className={`px-6 py-4 ${scoreBg} flex items-center justify-between`}>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">정확도</span>
-          <span
-            className={`text-2xl font-bold ${
-              score >= 80
-                ? "text-accent"
-                : score >= 50
-                ? "text-warning"
-                : "text-destructive"
-            }`}
-          >
+          <ScoreIcon className={`w-5 h-5 ${scoreColor}`} />
+          <span className="text-sm font-semibold text-foreground">발음 피드백</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">정확도</span>
+          <span className={`text-2xl font-extrabold ${scoreColor} tabular-nums`}>
             {score}%
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 text-xl md:text-2xl leading-relaxed" style={{ fontFamily: "var(--font-mono)" }}>
-        {origWords.map((word, i) => {
-          const isCorrect = recWords[i] === word;
-          return (
-            <motion.span
-              key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-              className={`px-1 rounded ${
-                isCorrect
-                  ? "text-accent"
-                  : "text-destructive bg-destructive/10 line-through decoration-2"
-              }`}
-            >
-              {word}
-            </motion.span>
-          );
-        })}
-      </div>
+      <div className="p-6 space-y-5">
+        {/* Word comparison */}
+        <div className="flex flex-wrap gap-1.5 text-lg md:text-xl leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          {origWords.map((word, i) => {
+            const isCorrect = recWords[i] === word;
+            return (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.04 }}
+                className={`px-1.5 py-0.5 rounded-md ${
+                  isCorrect
+                    ? "text-accent bg-accent/10"
+                    : "text-destructive bg-destructive/10 line-through decoration-2"
+                }`}
+              >
+                {word}
+              </motion.span>
+            );
+          })}
+        </div>
 
-      {/* Comparison playback */}
-      <div className="pt-4 border-t border-border space-y-4">
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          발음 비교
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Playback comparison */}
+        <div className="grid grid-cols-2 gap-2">
           <Button
             variant="outline"
+            size="sm"
             onClick={handlePlayNative}
             disabled={isPlayingNative}
-            className="gap-2 justify-center"
+            className="gap-2 rounded-xl h-10"
           >
             <Volume2 className="w-4 h-4" />
-            {isPlayingNative ? "재생 중..." : "🔊 원어민 발음"}
+            {isPlayingNative ? "재생 중..." : "원어민 발음"}
           </Button>
           <Button
             variant="outline"
+            size="sm"
             onClick={handlePlayMine}
             disabled={!audioURL || isPlayingMine}
-            className="gap-2 justify-center"
+            className="gap-2 rounded-xl h-10"
           >
             <Play className="w-4 h-4" />
-            {isPlayingMine ? "재생 중..." : "🎙️ 내 발음"}
+            {isPlayingMine ? "재생 중..." : "내 발음"}
           </Button>
         </div>
-      </div>
 
-      {recognized && (
-        <div className="pt-4 border-t border-border">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
-            내가 말한 것
-          </p>
-          <p className="text-lg text-muted-foreground" style={{ fontFamily: "var(--font-mono)" }}>
-            {recognized}
-          </p>
-        </div>
-      )}
+        {/* What I said */}
+        {recognized && (
+          <div className="pt-4 border-t border-border">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-2">
+              내가 말한 것
+            </p>
+            <p className="text-base text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              {recognized}
+            </p>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
