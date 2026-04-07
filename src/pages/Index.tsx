@@ -35,7 +35,10 @@ const Index = () => {
 
   // Load sentences from sessionStorage (set by Scripts page)
   useEffect(() => {
-    const data = sessionStorage.getItem("speakup-active-sentences");
+    // Check sessionStorage first (navigated from Scripts page), then localStorage (persisted)
+    const sessionData = sessionStorage.getItem("speakup-active-sentences");
+    const persistedData = localStorage.getItem("speakup-active-sentences");
+    const data = sessionData || persistedData;
     if (data) {
       try {
         const sentences = JSON.parse(data);
@@ -43,9 +46,11 @@ const Index = () => {
           setCustomSentences(sentences);
           setSentenceIndex(0);
           setScript(sentences[0]);
+          // Persist to localStorage and clear sessionStorage
+          localStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
+          if (sessionData) sessionStorage.removeItem("speakup-active-sentences");
         }
       } catch {}
-      sessionStorage.removeItem("speakup-active-sentences");
     }
   }, []);
 
@@ -65,6 +70,7 @@ const Index = () => {
     setSentenceIndex(0);
     setScript("");
     resetPracticeState();
+    localStorage.removeItem("speakup-active-sentences");
   };
 
   const handleSentenceNav = (dir: -1 | 1) => {
