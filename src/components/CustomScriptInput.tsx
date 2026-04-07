@@ -138,7 +138,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
             exit={{ opacity: 0, y: -10 }}
             className="absolute top-full left-0 right-0 z-50 mt-2 px-6"
           >
-            <div className="max-w-3xl mx-auto rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4">
+            <div className="max-w-5xl mx-auto rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-foreground">
                   연습할 문장을 입력하세요 (엔터 또는 마침표로 구분)
