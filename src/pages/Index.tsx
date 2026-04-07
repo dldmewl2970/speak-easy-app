@@ -181,27 +181,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Difficulty filter */}
-      {!isCustomMode && (
-        <div className="border-b border-border px-6 py-2">
-          <div className="max-w-3xl mx-auto flex items-center gap-2">
-            <span className="text-xs text-muted-foreground mr-1">난이도:</span>
-            {([undefined, "beginner", "intermediate", "advanced"] as (Difficulty | undefined)[]).map((d) => (
-              <button
-                key={d ?? "all"}
-                onClick={() => handleDifficultyChange(d)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  difficulty === d
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {d ? difficultyLabels[d] : "전체"}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Main */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
