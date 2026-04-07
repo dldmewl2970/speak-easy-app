@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, RefreshCw } from "lucide-react";
+import { Volume2, Mic, MicOff, RefreshCw, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
@@ -220,6 +220,36 @@ const Index = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Comparison playback - always visible */}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 gap-3 w-full max-w-md">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleListen}
+                disabled={isSpeaking}
+                className="gap-2 rounded-xl"
+              >
+                <Volume2 className="w-4 h-4" />
+                {isSpeaking ? "재생 중..." : "🔊 원어민 발음"}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  if (!audioURL) return;
+                  const audio = new Audio(audioURL);
+                  audio.play();
+                }}
+                disabled={!audioURL}
+                className="gap-2 rounded-xl"
+              >
+                <Play className="w-4 h-4" />
+                {audioURL ? "🎙️ 내 발음" : "🎙️ 녹음 필요"}
+              </Button>
+            </div>
+          </div>
 
           {/* Feedback */}
           <AnimatePresence>
