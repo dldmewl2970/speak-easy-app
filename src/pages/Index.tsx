@@ -383,7 +383,7 @@ const Index = () => {
               className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
             >
               <Volume2 className="w-4 h-4" />
-              {isSpeaking ? "재생 중..." : "원어민 듣기"}
+              {isSpeaking ? "Playing..." : "Listen"}
             </Button>
 
             <Button
