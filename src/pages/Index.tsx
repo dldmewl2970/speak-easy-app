@@ -28,6 +28,7 @@ const Index = () => {
   const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
   const [showScriptList, setShowScriptList] = useState(false);
   const [listenOnly, setListenOnly] = useState(false);
+  const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(4);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
@@ -411,7 +412,7 @@ const Index = () => {
           <ScriptDisplay script={script} />
 
           {/* Listen-only checkbox */}
-          <div className="flex items-center gap-2 justify-center">
+          <div className="flex items-center gap-2 justify-center flex-wrap">
             <Checkbox
               id="listen-only"
               checked={listenOnly}
@@ -420,6 +421,21 @@ const Index = () => {
             <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
               I can't record my voice (listen-only mode)
             </label>
+            {listenOnly && (
+              <div className="flex items-center gap-2 ml-4">
+                <label className="text-xs text-muted-foreground whitespace-nowrap">Delay:</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={autoAdvanceDelay}
+                  onChange={(e) => setAutoAdvanceDelay(Number(e.target.value))}
+                  className="w-20 h-1.5 accent-primary"
+                />
+                <span className="text-xs text-muted-foreground font-mono w-6">{autoAdvanceDelay}s</span>
+              </div>
+            )}
           </div>
 
           {/* Saved Scripts List */}
@@ -456,6 +472,7 @@ const Index = () => {
           {listenOnly && isCustomMode && script ? (
             <ListenOnlyDisplay
               sentence={script}
+              delaySeconds={autoAdvanceDelay}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {

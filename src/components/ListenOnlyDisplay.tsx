@@ -12,6 +12,7 @@ interface AnalysisResult {
 interface ListenOnlyDisplayProps {
   sentence: string;
   onDone: () => void;
+  delaySeconds?: number;
 }
 
 const renderProsody = (prosody: string) => {
@@ -40,7 +41,7 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4 }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
@@ -90,12 +91,12 @@ const ListenOnlyDisplay = ({ sentence, onDone }: ListenOnlyDisplayProps) => {
       .finally(() => setIsAnalyzing(false));
   }, [sentence]);
 
-  // Auto-advance after TTS done + analysis loaded + 3s delay
+  // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {
     if (!ttsFinished || isAnalyzing) return;
     const timer = setTimeout(() => {
       onDone();
-    }, 4000);
+    }, delaySeconds * 1000);
     return () => clearTimeout(timer);
   }, [ttsFinished, isAnalyzing, onDone]);
 
