@@ -65,6 +65,32 @@ const Index = () => {
     }
   }, []);
 
+  // Fetch saved scripts from DB
+  useEffect(() => {
+    if (!user) {
+      setSavedScripts([]);
+      return;
+    }
+    const fetchScripts = async () => {
+      const { data } = await supabase
+        .from("scripts")
+        .select("id, name, text")
+        .order("created_at", { ascending: false });
+      if (data) setSavedScripts(data);
+    };
+    fetchScripts();
+  }, [user]);
+
+  const handleLoadScript = (s: SavedScript) => {
+    const sentences = splitSentences(s.text);
+    if (sentences.length === 0) return;
+    setCustomSentences(sentences);
+    setSentenceIndex(0);
+    setScript(sentences[0]);
+    localStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
+    setShowScriptList(false);
+  };
+
   const resetPracticeState = () => {
     setRecognized("");
     setError(null);
