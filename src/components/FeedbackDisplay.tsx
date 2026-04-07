@@ -136,7 +136,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
             </div>
           ) : (
             <p className="text-sm text-foreground leading-relaxed">
-              {translation || "번역을 불러올 수 없습니다."}
+              {translation || "Translation unavailable."}
             </p>
           )}
         </div>
