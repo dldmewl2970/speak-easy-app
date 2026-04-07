@@ -396,12 +396,12 @@ const Index = () => {
               {isListening ? (
                 <>
                   <MicOff className="w-4 h-4" />
-                  녹음 중지
+                  Stop
                 </>
               ) : (
                 <>
                   <Mic className="w-4 h-4" />
-                  녹음하기
+                  Record
                 </>
               )}
             </Button>
