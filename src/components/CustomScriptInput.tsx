@@ -177,7 +177,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   className="gap-2 shrink-0"
                 >
                   <Save className="w-4 h-4" />
-                  저장
+                  Save
                 </Button>
               </div>
               <div className="flex justify-end gap-3">
