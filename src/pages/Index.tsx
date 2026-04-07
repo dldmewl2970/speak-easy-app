@@ -2,11 +2,13 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, Mic, MicOff, Play, FileText, X, ChevronDown } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
 import SentenceNav from "@/components/SentenceNav";
+import ListenOnlyDisplay from "@/components/ListenOnlyDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { splitSentences } from "@/pages/Scripts";
@@ -25,6 +27,7 @@ const Index = () => {
   const [script, setScript] = useState("");
   const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
   const [showScriptList, setShowScriptList] = useState(false);
+  const [listenOnly, setListenOnly] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
@@ -190,16 +193,15 @@ const Index = () => {
     return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", loadVoices);
   }, []);
 
-  // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작
+  // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작 (listen-only 모드가 아닐 때만)
   useEffect(() => {
-    if (!script) return;
-    // 약간의 딜레이 후 자동 재생
+    if (!script || listenOnly) return;
     const timer = setTimeout(() => {
       handleListen(true);
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [script]);
+  }, [script, listenOnly]);
 
   const stopRecording = useCallback(() => {
     if (silenceCheckRef.current) {
@@ -408,6 +410,18 @@ const Index = () => {
         <div className="w-full max-w-2xl space-y-6">
           <ScriptDisplay script={script} />
 
+          {/* Listen-only checkbox */}
+          <div className="flex items-center gap-2 justify-center">
+            <Checkbox
+              id="listen-only"
+              checked={listenOnly}
+              onCheckedChange={(v) => setListenOnly(v === true)}
+            />
+            <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
+              I can't record my voice (listen-only mode)
+            </label>
+          </div>
+
           {/* Saved Scripts List */}
           {!isCustomMode && savedScripts.length > 0 && (
             <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[240px] overflow-y-auto">
@@ -438,94 +452,111 @@ const Index = () => {
             />
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-center">
-            <Button
-              size="lg"
-              onClick={() => handleListen(false)}
-              disabled={isSpeaking || !script}
-              className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
-            >
-              <Volume2 className="w-4 h-4" />
-              {isSpeaking ? "Playing..." : "Listen"}
-            </Button>
+          {/* Listen-only mode content */}
+          {listenOnly && isCustomMode && script ? (
+            <ListenOnlyDisplay
+              sentence={script}
+              onDone={() => {
+                // Auto-advance to next sentence
+                if (sentenceIndex < customSentences.length - 1) {
+                  const next = sentenceIndex + 1;
+                  setSentenceIndex(next);
+                  setScript(customSentences[next]);
+                }
+              }}
+            />
+          ) : (
+            <>
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <Button
+                  size="lg"
+                  onClick={() => handleListen(false)}
+                  disabled={isSpeaking || !script}
+                  className="gap-2.5 text-sm px-6 rounded-xl shadow-sm shadow-primary/20 h-11"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  {isSpeaking ? "Playing..." : "Listen"}
+                </Button>
 
-            <Button
-              size="lg"
-              variant={isListening ? "destructive" : "outline"}
-              onClick={handleRecord}
-              disabled={!script}
-              className="gap-2.5 text-sm px-6 rounded-xl h-11"
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="w-4 h-4" />
-                  Stop
-                </>
-              ) : (
-                <>
-                  <Mic className="w-4 h-4" />
-                  Record
-                </>
-              )}
-            </Button>
+                <Button
+                  size="lg"
+                  variant={isListening ? "destructive" : "outline"}
+                  onClick={handleRecord}
+                  disabled={!script}
+                  className="gap-2.5 text-sm px-6 rounded-xl h-11"
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="w-4 h-4" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4" />
+                      Record
+                    </>
+                  )}
+                </Button>
 
-            {audioURL && (
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => {
-                  const audio = new Audio(audioURL);
-                  audio.play();
-                }}
-                className="gap-2.5 text-sm px-6 rounded-xl h-11"
-              >
-                <Play className="w-4 h-4" />
-                My Voice
-              </Button>
-            )}
-          </div>
+                {audioURL && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => {
+                      const audio = new Audio(audioURL);
+                      audio.play();
+                    }}
+                    className="gap-2.5 text-sm px-6 rounded-xl h-11"
+                  >
+                    <Play className="w-4 h-4" />
+                    My Voice
+                  </Button>
+                )}
+              </div>
 
-          {/* Listening indicator */}
-          <AnimatePresence>
-            {isListening && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex justify-center"
-              >
-                <div className="flex items-center gap-3 bg-destructive/10 text-destructive px-5 py-2.5 rounded-full">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
-                  </span>
-                  <span className="text-sm font-medium">Listening... Speak now!</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Listening indicator */}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex justify-center"
+                  >
+                    <div className="flex items-center gap-3 bg-destructive/10 text-destructive px-5 py-2.5 rounded-full">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-destructive" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+                      </span>
+                      <span className="text-sm font-medium">Listening... Speak now!</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {/* Error */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="rounded-xl bg-destructive/10 border border-destructive/20 px-5 py-3 text-center"
-              >
-                <p className="text-sm text-destructive font-medium">{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="rounded-xl bg-destructive/10 border border-destructive/20 px-5 py-3 text-center"
+                  >
+                    <p className="text-sm text-destructive font-medium">{error}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {/* Feedback */}
-          <AnimatePresence>
-            {recognized && (
-              <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
-            )}
-          </AnimatePresence>
+              {/* Feedback */}
+              <AnimatePresence>
+                {recognized && (
+                  <FeedbackDisplay original={script} recognized={recognized} audioURL={audioURL} />
+                )}
+              </AnimatePresence>
+            </>
+          )}
         </div>
       </main>
     </div>
