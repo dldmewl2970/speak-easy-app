@@ -113,7 +113,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
         className="gap-2 text-muted-foreground"
       >
         <X className="w-4 h-4" />
-        커스텀 해제
+        Clear Custom
       </Button>
     );
   }
