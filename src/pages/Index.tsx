@@ -70,6 +70,7 @@ const Index = () => {
     setSentenceIndex(0);
     setScript("");
     resetPracticeState();
+    localStorage.removeItem("speakup-active-sentences");
   };
 
   const handleSentenceNav = (dir: -1 | 1) => {
