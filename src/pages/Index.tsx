@@ -48,6 +48,9 @@ const Index = () => {
 
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       setIsListening(false);
       return;
     }
