@@ -189,7 +189,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
                   onClick={handleSubmit}
                   disabled={charCount === 0 || charCount > MAX_CHARS}
                 >
-                  연습 시작 ({splitSentences(text).length}문장)
+                  Start Practice ({splitSentences(text).length} sentences)
                 </Button>
               </div>
 
