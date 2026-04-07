@@ -276,7 +276,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              onClick={handleListen}
+              onClick={() => handleListen(false)}
               disabled={isSpeaking}
               className="gap-3 text-base px-8 rounded-xl"
             >
