@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -6,13 +6,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Volume2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const autoLoginAttempted = useRef(false);
+
+  // Auto-redirect to Google SSO if not logged in
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      navigate("/");
+      return;
+    }
+    if (!autoLoginAttempted.current) {
+      autoLoginAttempted.current = true;
+      handleGoogleSignIn();
+    }
+  }, [authLoading, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
