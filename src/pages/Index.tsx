@@ -1,19 +1,30 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ScriptDisplay from "@/components/ScriptDisplay";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
 import SentenceNav from "@/components/SentenceNav";
-
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { splitSentences } from "@/pages/Scripts";
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+interface SavedScript {
+  id: string;
+  name: string;
+  text: string;
+}
+
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [script, setScript] = useState("");
+  const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
+  const [showScriptList, setShowScriptList] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
@@ -53,6 +64,32 @@ const Index = () => {
       } catch {}
     }
   }, []);
+
+  // Fetch saved scripts from DB
+  useEffect(() => {
+    if (!user) {
+      setSavedScripts([]);
+      return;
+    }
+    const fetchScripts = async () => {
+      const { data } = await supabase
+        .from("scripts")
+        .select("id, name, text")
+        .order("created_at", { ascending: false });
+      if (data) setSavedScripts(data);
+    };
+    fetchScripts();
+  }, [user]);
+
+  const handleLoadScript = (s: SavedScript) => {
+    const sentences = splitSentences(s.text);
+    if (sentences.length === 0) return;
+    setCustomSentences(sentences);
+    setSentenceIndex(0);
+    setScript(sentences[0]);
+    localStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
+    setShowScriptList(false);
+  };
 
   const resetPracticeState = () => {
     setRecognized("");
@@ -370,6 +407,47 @@ const Index = () => {
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-2xl space-y-6">
           <ScriptDisplay script={script} />
+
+          {/* Saved Scripts Quick Access */}
+          {!isCustomMode && savedScripts.length > 0 && (
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowScriptList(!showScriptList)}
+                className="gap-2 text-xs text-muted-foreground w-full justify-center"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Saved Scripts ({savedScripts.length})
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showScriptList ? "rotate-180" : ""}`} />
+              </Button>
+              <AnimatePresence>
+                {showScriptList && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[200px] overflow-y-auto">
+                      {savedScripts.map((s) => (
+                        <button
+                          key={s.id}
+                          onClick={() => handleLoadScript(s)}
+                          className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center justify-between"
+                        >
+                          <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
+                          <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                            {splitSentences(s.text).length} sentences
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {isCustomMode && (
             <SentenceNav
