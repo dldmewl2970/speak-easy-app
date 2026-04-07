@@ -11,8 +11,7 @@ const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const Index = () => {
-  const [script, setScript] = useState(() => getRandomScript());
-  const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
+  const [script, setScript] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
