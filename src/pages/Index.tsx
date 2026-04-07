@@ -410,6 +410,18 @@ const Index = () => {
         <div className="w-full max-w-2xl space-y-6">
           <ScriptDisplay script={script} />
 
+          {/* Listen-only checkbox */}
+          <div className="flex items-center gap-2 justify-center">
+            <Checkbox
+              id="listen-only"
+              checked={listenOnly}
+              onCheckedChange={(v) => setListenOnly(v === true)}
+            />
+            <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
+              I can't record my voice (listen-only mode)
+            </label>
+          </div>
+
           {/* Saved Scripts List */}
           {!isCustomMode && savedScripts.length > 0 && (
             <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[240px] overflow-y-auto">
