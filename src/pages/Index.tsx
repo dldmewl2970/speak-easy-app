@@ -407,6 +407,17 @@ const Index = () => {
                 </div>
               </>
             )}
+            {!isCustomMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/scripts")}
+                className="gap-1.5 h-8 text-xs rounded-lg ml-4"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                My Scripts
+              </Button>
+            )}
           </div>
 
           {/* Saved Scripts List */}
