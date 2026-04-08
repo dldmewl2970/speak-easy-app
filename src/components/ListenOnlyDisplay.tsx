@@ -55,7 +55,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
 
   // Play TTS with repeat support using Google Cloud TTS
   useEffect(() => {
-    if (!sentence) return;
+    if (!sentence || isPaused) return;
     setTtsFinished(false);
     setCurrentRepeat(0);
 
@@ -63,7 +63,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     let playCount = 0;
 
     const playOnce = () => {
-      if (cancelled) return;
+      if (cancelled || isPaused) return;
       speak(sentence, voiceName, () => {
         if (cancelled) return;
         playCount++;
@@ -83,7 +83,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
       clearTimeout(timer);
       cancel();
     };
-  }, [sentence, repeatCount, voiceName, speechSpeed]);
+  }, [sentence, repeatCount, voiceName, speechSpeed, isPaused]);
 
   // Fetch analysis
   useEffect(() => {
