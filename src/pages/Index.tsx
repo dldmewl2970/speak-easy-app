@@ -31,6 +31,7 @@ const Index = () => {
   const [listenOnly, setListenOnly] = useState(false);
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(4);
   const [repeatCount, setRepeatCount] = useState(1);
+  const [scriptLoopCount, setScriptLoopCount] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +99,7 @@ const Index = () => {
     if (sentences.length === 0) return;
     setCustomSentences(sentences);
     setSentenceIndex(0);
+    setScriptLoopCount(0);
     setScript(sentences[0]);
     localStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     setShowScriptList(false);
@@ -453,11 +455,15 @@ const Index = () => {
               voiceName={selectedVoiceName}
               speechSpeed={speechSpeed}
               onDone={() => {
-                // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {
                   const next = sentenceIndex + 1;
                   setSentenceIndex(next);
                   setScript(customSentences[next]);
+                } else if (scriptLoopCount < 2) {
+                  // Loop back to first sentence (up to 3 total loops: 0, 1, 2)
+                  setScriptLoopCount((prev) => prev + 1);
+                  setSentenceIndex(0);
+                  setScript(customSentences[0]);
                 }
               }}
             />
