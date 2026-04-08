@@ -15,6 +15,7 @@ interface ListenOnlyDisplayProps {
   onDone: () => void;
   delaySeconds?: number;
   repeatCount?: number;
+  voiceName?: string;
 }
 
 const renderProsody = (prosody: string) => {
