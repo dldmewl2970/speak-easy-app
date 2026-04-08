@@ -87,21 +87,33 @@ const Index = () => {
     }
   }, []);
 
-  // Keyboard arrow navigation
+  // Keyboard arrow navigation + spacebar pause/resume
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isCustomMode) return;
+      // Ignore if user is typing in an input/textarea
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         handleSentenceNav(-1);
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         handleSentenceNav(1);
+      } else if (e.key === " ") {
+        e.preventDefault();
+        if (listenOnly) {
+          setIsPaused((p) => {
+            if (!p) googleCancel();
+            return !p;
+          });
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isCustomMode, sentenceIndex, customSentences]);
+  }, [isCustomMode, sentenceIndex, customSentences, listenOnly, googleCancel]);
 
   // Fetch saved scripts from DB
   useEffect(() => {
