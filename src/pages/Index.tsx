@@ -99,6 +99,7 @@ const Index = () => {
     if (sentences.length === 0) return;
     setCustomSentences(sentences);
     setSentenceIndex(0);
+    setScriptLoopCount(0);
     setScript(sentences[0]);
     localStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     setShowScriptList(false);
