@@ -107,12 +107,12 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
 
   // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {
-    if (!ttsFinished || isAnalyzing) return;
+    if (!ttsFinished || isAnalyzing || isPaused) return;
     const timer = setTimeout(() => {
       onDone();
     }, delaySeconds * 1000);
     return () => clearTimeout(timer);
-  }, [ttsFinished, isAnalyzing, onDone]);
+  }, [ttsFinished, isAnalyzing, onDone, isPaused]);
 
   return (
     <motion.div
