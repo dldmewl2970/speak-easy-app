@@ -298,14 +298,17 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/50 px-6 py-3 backdrop-blur-sm bg-background/80 sticky top-0 z-40">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleCustomClear}
+            className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/25">
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <h1 className="text-base font-bold tracking-tight text-foreground">
               SpeakUp
             </h1>
-          </div>
+          </button>
           <div className="flex items-center gap-2">
             <Select
               value={selectedVoiceName}
