@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.3.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +21,24 @@ serve(async (req) => {
       });
     }
 
+    // Check cache first
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data: cached } = await supabase
+      .from("sentence_images")
+      .select("image_data")
+      .eq("sentence_text", sentence)
+      .maybeSingle();
+
+    if (cached?.image_data) {
+      return new Response(JSON.stringify({ imageUrl: cached.image_data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Generate new image
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "API key not configured" }), {
@@ -28,7 +47,6 @@ serve(async (req) => {
       });
     }
 
-    // Use AI to generate a relevant image
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -65,6 +83,14 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Save to cache (fire and forget)
+    supabase
+      .from("sentence_images")
+      .insert({ sentence_text: sentence, image_data: imageUrl })
+      .then(({ error }) => {
+        if (error) console.error("Cache insert error:", error.message);
+      });
 
     return new Response(JSON.stringify({ imageUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
