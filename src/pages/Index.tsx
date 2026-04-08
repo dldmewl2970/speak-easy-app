@@ -451,6 +451,7 @@ const Index = () => {
               delaySeconds={autoAdvanceDelay}
               repeatCount={repeatCount}
               voiceName={selectedVoiceName}
+              speechSpeed={speechSpeed}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {
