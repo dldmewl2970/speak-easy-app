@@ -323,6 +323,23 @@ const Index = () => {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex items-center gap-1.5">
+              <label className="text-[10px] text-muted-foreground whitespace-nowrap">Speed:</label>
+              <input
+                type="range"
+                min={0.5}
+                max={1.5}
+                step={0.05}
+                value={speechSpeed}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setSpeechSpeed(val);
+                  localStorage.setItem("speakup-speech-speed", String(val));
+                }}
+                className="w-16 h-1.5 accent-primary"
+              />
+              <span className="text-[10px] text-muted-foreground font-mono w-7">{speechSpeed.toFixed(2)}×</span>
+            </div>
             {isCustomMode ? (
               <Button
                 variant="ghost"
