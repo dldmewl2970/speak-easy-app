@@ -373,7 +373,7 @@ const Index = () => {
               onCheckedChange={(v) => setListenOnly(v === true)}
             />
             <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
-              I can't record my voice (listen-only mode)
+              listen-only mode
             </label>
             {listenOnly && (
               <>
