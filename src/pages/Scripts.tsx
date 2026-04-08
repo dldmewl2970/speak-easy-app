@@ -55,7 +55,7 @@ const Scripts = () => {
   }, [user, authLoading]);
 
   const charCount = text.length;
-  const MAX_CHARS = 3000;
+  const MAX_CHARS = 10000;
 
   const handleSave = async () => {
     if (!text.trim() || !user) return;
