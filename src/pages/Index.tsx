@@ -454,11 +454,15 @@ const Index = () => {
               voiceName={selectedVoiceName}
               speechSpeed={speechSpeed}
               onDone={() => {
-                // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {
                   const next = sentenceIndex + 1;
                   setSentenceIndex(next);
                   setScript(customSentences[next]);
+                } else if (scriptLoopCount < 2) {
+                  // Loop back to first sentence (up to 3 total loops: 0, 1, 2)
+                  setScriptLoopCount((prev) => prev + 1);
+                  setSentenceIndex(0);
+                  setScript(customSentences[0]);
                 }
               }}
             />
