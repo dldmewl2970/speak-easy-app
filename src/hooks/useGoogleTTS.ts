@@ -28,7 +28,8 @@ export function useGoogleTTS() {
   const speak = useCallback(async (
     text: string,
     voice?: string,
-    onEnd?: () => void
+    onEnd?: () => void,
+    speed?: number
   ) => {
     if (!text) return;
     abortRef.current = false;
@@ -43,7 +44,7 @@ export function useGoogleTTS() {
 
     try {
       const { data, error } = await supabase.functions.invoke("tts", {
-        body: { text, voice: voice || undefined },
+        body: { text, voice: voice || undefined, speed: speed || undefined },
       });
 
       if (abortRef.current) return;

@@ -16,6 +16,7 @@ interface ListenOnlyDisplayProps {
   delaySeconds?: number;
   repeatCount?: number;
   voiceName?: string;
+  speechSpeed?: number;
 }
 
 const renderProsody = (prosody: string) => {
@@ -44,7 +45,7 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
@@ -74,7 +75,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
         } else {
           setTtsFinished(true);
         }
-      });
+      }, speechSpeed);
     };
 
     const timer = setTimeout(() => playOnce(), 300);

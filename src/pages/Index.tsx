@@ -40,6 +40,10 @@ const Index = () => {
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
     return localStorage.getItem("speakup-google-voice") || "en-US-Neural2-F";
   });
+  const [speechSpeed, setSpeechSpeed] = useState<number>(() => {
+    const saved = localStorage.getItem("speakup-speech-speed");
+    return saved ? Number(saved) : 0.95;
+  });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -133,8 +137,8 @@ const Index = () => {
       if (autoRecordAfter) {
         setTimeout(() => handleRecord(), 400);
       }
-    });
-  }, [script, selectedVoiceName, googleSpeak, googleCancel]);
+    }, speechSpeed);
+  }, [script, selectedVoiceName, speechSpeed, googleSpeak, googleCancel]);
 
   // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작 (listen-only 모드가 아닐 때만)
   useEffect(() => {
@@ -319,6 +323,23 @@ const Index = () => {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex items-center gap-1.5">
+              <label className="text-[10px] text-muted-foreground whitespace-nowrap">Speed:</label>
+              <input
+                type="range"
+                min={0.5}
+                max={1.5}
+                step={0.05}
+                value={speechSpeed}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setSpeechSpeed(val);
+                  localStorage.setItem("speakup-speech-speed", String(val));
+                }}
+                className="w-16 h-1.5 accent-primary"
+              />
+              <span className="text-[10px] text-muted-foreground font-mono w-7">{speechSpeed.toFixed(2)}×</span>
+            </div>
             {isCustomMode ? (
               <Button
                 variant="ghost"
@@ -430,6 +451,7 @@ const Index = () => {
               delaySeconds={autoAdvanceDelay}
               repeatCount={repeatCount}
               voiceName={selectedVoiceName}
+              speechSpeed={speechSpeed}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {
