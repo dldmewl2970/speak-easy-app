@@ -98,8 +98,8 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
     return parts.map((part, i) => {
       if (part === "/") {
         return (
-          <span key={i} className="text-primary font-bold mx-1.5 select-none" aria-label="pause">
-            ∥
+          <span key={i} className="text-primary font-bold mx-0.5 select-none" aria-label="pause">
+            /
           </span>
         );
       }
