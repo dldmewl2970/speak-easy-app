@@ -45,7 +45,7 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
