@@ -15,18 +15,10 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const autoLoginAttempted = useRef(false);
-
-  // Auto-redirect to Google SSO if not logged in
+  // Redirect to home if already logged in
   useEffect(() => {
-    if (authLoading) return;
-    if (user) {
+    if (!authLoading && user) {
       navigate("/");
-      return;
-    }
-    if (!autoLoginAttempted.current) {
-      autoLoginAttempted.current = true;
-      handleGoogleSignIn();
     }
   }, [authLoading, user]);
 
