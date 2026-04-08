@@ -184,7 +184,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground">
                   <span><span className="text-primary font-bold">Bold</span> = stress</span>
-                  <span><span className="text-primary font-bold">∥</span> = pause</span>
+                  <span><span className="text-primary font-bold">/</span> = pause</span>
                 </div>
               </div>
             )}
