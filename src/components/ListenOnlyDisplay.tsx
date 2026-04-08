@@ -75,7 +75,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
         } else {
           setTtsFinished(true);
         }
-      });
+      }, speechSpeed);
     };
 
     const timer = setTimeout(() => playOnce(), 300);
