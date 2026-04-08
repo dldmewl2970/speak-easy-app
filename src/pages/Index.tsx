@@ -301,28 +301,24 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            {availableVoices.length > 0 && (
-              <Select
-                value={selectedVoiceName || "auto"}
-                onValueChange={(val) => {
-                  const name = val === "auto" ? "" : val;
-                  setSelectedVoiceName(name);
-                  localStorage.setItem("speakup-voice", name);
-                }}
-              >
-                <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
-                  <SelectValue placeholder="Select Voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">🔊 Auto</SelectItem>
-                  {availableVoices.map((v) => (
-                    <SelectItem key={v.name} value={v.name}>
-                      {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={selectedVoiceName}
+              onValueChange={(val) => {
+                setSelectedVoiceName(val);
+                localStorage.setItem("speakup-google-voice", val);
+              }}
+            >
+              <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
+                <SelectValue placeholder="Select Voice" />
+              </SelectTrigger>
+              <SelectContent>
+                {GOOGLE_TTS_VOICES.map((v) => (
+                  <SelectItem key={v.name} value={v.name}>
+                    🔊 {v.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {isCustomMode ? (
               <Button
                 variant="ghost"
