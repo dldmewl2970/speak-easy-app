@@ -62,10 +62,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     let playCount = 0;
 
     const playOnce = () => {
-      if (cancelled) {
-        if (!cancelled) setTtsFinished(true);
-        return;
-      }
+      if (cancelled) return;
       speak(sentence, voiceName, () => {
         if (cancelled) return;
         playCount++;
@@ -85,7 +82,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
       clearTimeout(timer);
       cancel();
     };
-  }, [sentence, repeatCount, voiceName]);
+  }, [sentence, repeatCount, voiceName, speechSpeed]);
 
   // Fetch analysis
   useEffect(() => {

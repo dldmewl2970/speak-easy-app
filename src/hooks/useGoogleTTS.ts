@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Available Google Cloud TTS Neural2 voices
@@ -20,10 +20,51 @@ export const GOOGLE_TTS_VOICES = [
   { name: "en-AU-Neural2-C", label: "AU Male (C)" },
 ];
 
+// Shared audio element to avoid mobile autoplay restrictions
+// Once unlocked by user gesture, it can be reused for programmatic plays
+let sharedAudio: HTMLAudioElement | null = null;
+let audioUnlocked = false;
+
+function getSharedAudio(): HTMLAudioElement {
+  if (!sharedAudio) {
+    sharedAudio = new Audio();
+  }
+  return sharedAudio;
+}
+
+// Call this on any user interaction to unlock audio on mobile
+export function unlockAudio() {
+  if (audioUnlocked) return;
+  const audio = getSharedAudio();
+  // Play a silent buffer to unlock
+  audio.src = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRwBHAAAAAAD/+xBkAA/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkLQ/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==";
+  audio.play().then(() => {
+    audio.pause();
+    audio.currentTime = 0;
+    audioUnlocked = true;
+  }).catch(() => {
+    // ignore - will try again on next interaction
+  });
+}
+
 export function useGoogleTTS() {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef(false);
+  const currentUrlRef = useRef<string | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      const audio = getSharedAudio();
+      audio.pause();
+      audio.onended = null;
+      audio.onerror = null;
+      if (currentUrlRef.current) {
+        URL.revokeObjectURL(currentUrlRef.current);
+        currentUrlRef.current = null;
+      }
+    };
+  }, []);
 
   const speak = useCallback(async (
     text: string,
@@ -34,10 +75,15 @@ export function useGoogleTTS() {
     if (!text) return;
     abortRef.current = false;
 
+    const audio = getSharedAudio();
+
     // Stop any current playback
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+    audio.pause();
+    audio.onended = null;
+    audio.onerror = null;
+    if (currentUrlRef.current) {
+      URL.revokeObjectURL(currentUrlRef.current);
+      currentUrlRef.current = null;
     }
 
     setIsSpeaking(true);
@@ -64,21 +110,25 @@ export function useGoogleTTS() {
       }
       const blob = new Blob([bytes], { type: "audio/mp3" });
       const url = URL.createObjectURL(blob);
+      currentUrlRef.current = url;
 
-      const audio = new Audio(url);
-      audioRef.current = audio;
+      audio.src = url;
 
       audio.onended = () => {
         setIsSpeaking(false);
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
+        if (currentUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          currentUrlRef.current = null;
+        }
         if (!abortRef.current) onEnd?.();
       };
 
       audio.onerror = () => {
         setIsSpeaking(false);
-        URL.revokeObjectURL(url);
-        audioRef.current = null;
+        if (currentUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          currentUrlRef.current = null;
+        }
         onEnd?.();
       };
 
@@ -92,9 +142,13 @@ export function useGoogleTTS() {
 
   const cancel = useCallback(() => {
     abortRef.current = true;
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+    const audio = getSharedAudio();
+    audio.pause();
+    audio.onended = null;
+    audio.onerror = null;
+    if (currentUrlRef.current) {
+      URL.revokeObjectURL(currentUrlRef.current);
+      currentUrlRef.current = null;
     }
     setIsSpeaking(false);
   }, []);
