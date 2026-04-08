@@ -158,6 +158,7 @@ const Index = () => {
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!script) return;
+    unlockAudio();
     googleCancel();
     googleSpeak(script, selectedVoiceName, () => {
       if (autoRecordAfter) {
