@@ -491,6 +491,13 @@ const Index = () => {
               total={customSentences.length}
               onPrev={() => handleSentenceNav(-1)}
               onNext={() => handleSentenceNav(1)}
+              onGoTo={(index) => {
+                if (index === sentenceIndex) return;
+                unlockAudio();
+                setSentenceIndex(index);
+                setScript(customSentences[index]);
+                resetPracticeState();
+              }}
             />
           )}
 

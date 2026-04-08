@@ -1,15 +1,48 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRef, useCallback } from "react";
 
 interface SentenceNavProps {
   current: number;
   total: number;
   onPrev: () => void;
   onNext: () => void;
+  onGoTo?: (index: number) => void;
 }
 
-const SentenceNav = ({ current, total, onPrev, onNext }: SentenceNavProps) => {
+const SentenceNav = ({ current, total, onPrev, onNext, onGoTo }: SentenceNavProps) => {
   const progress = ((current + 1) / total) * 100;
+  const barRef = useRef<HTMLDivElement>(null);
+
+  const calcIndex = useCallback((clientX: number) => {
+    if (!barRef.current || !onGoTo) return;
+    const rect = barRef.current.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const index = Math.min(total - 1, Math.floor(ratio * total));
+    onGoTo(index);
+  }, [total, onGoTo]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!onGoTo) return;
+    calcIndex(e.clientX);
+    const onMove = (ev: MouseEvent) => calcIndex(ev.clientX);
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [calcIndex, onGoTo]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!onGoTo) return;
+    calcIndex(e.touches[0].clientX);
+  }, [calcIndex, onGoTo]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!onGoTo) return;
+    calcIndex(e.touches[0].clientX);
+  }, [calcIndex, onGoTo]);
 
   return (
     <div className="flex items-center gap-4">
@@ -24,9 +57,15 @@ const SentenceNav = ({ current, total, onPrev, onNext }: SentenceNavProps) => {
       </Button>
 
       <div className="flex-1 flex items-center gap-3">
-        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+        <div
+          ref={barRef}
+          className="flex-1 h-3 rounded-full bg-muted overflow-hidden cursor-pointer touch-none"
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+        >
           <div
-            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out pointer-events-none"
             style={{ width: `${progress}%` }}
           />
         </div>
