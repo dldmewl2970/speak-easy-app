@@ -118,6 +118,7 @@ const Index = () => {
   }, [user]);
 
   const handleLoadScript = (s: SavedScript) => {
+    unlockAudio();
     const sentences = splitSentences(s.text);
     if (sentences.length === 0) return;
     setCustomSentences(sentences);
