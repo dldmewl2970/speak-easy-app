@@ -149,6 +149,7 @@ const Index = () => {
   };
 
   const handleSentenceNav = (dir: -1 | 1) => {
+    unlockAudio();
     const next = sentenceIndex + dir;
     if (next < 0 || next >= customSentences.length) return;
     setSentenceIndex(next);
