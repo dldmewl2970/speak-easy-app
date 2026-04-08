@@ -98,8 +98,8 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
     return parts.map((part, i) => {
       if (part === "/") {
         return (
-          <span key={i} className="text-primary font-bold mx-1.5 select-none" aria-label="pause">
-            ∥
+          <span key={i} className="text-primary font-bold mx-0.5 select-none" aria-label="pause">
+            /
           </span>
         );
       }
@@ -184,7 +184,7 @@ const FeedbackDisplay = ({ original, recognized, audioURL }: FeedbackDisplayProp
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground">
                   <span><span className="text-primary font-bold">Bold</span> = stress</span>
-                  <span><span className="text-primary font-bold">∥</span> = pause</span>
+                  <span><span className="text-primary font-bold">/</span> = pause</span>
                 </div>
               </div>
             )}
