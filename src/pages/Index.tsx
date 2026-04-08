@@ -40,6 +40,10 @@ const Index = () => {
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
     return localStorage.getItem("speakup-google-voice") || "en-US-Neural2-F";
   });
+  const [speechSpeed, setSpeechSpeed] = useState<number>(() => {
+    const saved = localStorage.getItem("speakup-speech-speed");
+    return saved ? Number(saved) : 0.95;
+  });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
