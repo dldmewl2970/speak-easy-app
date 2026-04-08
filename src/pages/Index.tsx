@@ -299,8 +299,8 @@ const Index = () => {
       if (event.error === "not-allowed") {
         setError("Microphone permission denied. Please allow it in your browser settings.");
         stopRecording();
-      } else if (event.error === "no-speech") {
-        // 무시 — 무음 감지로 처리
+      } else if (event.error === "no-speech" || event.error === "aborted") {
+        // 무시 — no-speech는 무음 감지로 처리, aborted는 모바일에서 정상 중단
       } else if (event.error === "network") {
         setError(
           "Network error: Chrome speech recognition requires a connection to Google servers."
