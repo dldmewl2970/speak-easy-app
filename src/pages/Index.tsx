@@ -32,14 +32,14 @@ const Index = () => {
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(4);
   const [repeatCount, setRepeatCount] = useState(1);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
+    return localStorage.getItem("speakup-google-voice") || "en-US-Neural2-F";
+  });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -47,6 +47,8 @@ const Index = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const silenceCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const { speak: googleSpeak, cancel: googleCancel, isSpeaking } = useGoogleTTS();
 
   const isCustomMode = customSentences.length > 0;
 
