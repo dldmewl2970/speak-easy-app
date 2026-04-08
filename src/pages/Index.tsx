@@ -85,6 +85,22 @@ const Index = () => {
     }
   }, []);
 
+  // Keyboard arrow navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isCustomMode) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        handleSentenceNav(-1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        handleSentenceNav(1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCustomMode, sentenceIndex, customSentences]);
+
   // Fetch saved scripts from DB
   useEffect(() => {
     if (!user) {
