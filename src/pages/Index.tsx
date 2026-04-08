@@ -388,7 +388,24 @@ const Index = () => {
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-10">
+      <main
+        className="flex-1 flex flex-col items-center justify-center px-6 py-10"
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+        }}
+        onTouchEnd={(e) => {
+          if (!touchStartRef.current || !isCustomMode) return;
+          const touch = e.changedTouches[0];
+          const dx = touch.clientX - touchStartRef.current.x;
+          const dy = touch.clientY - touchStartRef.current.y;
+          touchStartRef.current = null;
+          if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            if (dx < 0) handleSentenceNav(1);
+            else handleSentenceNav(-1);
+          }
+        }}
+      >
         <div className="w-full max-w-2xl space-y-6">
           {script && <ScriptDisplay script={script} />}
 
