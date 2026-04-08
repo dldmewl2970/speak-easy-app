@@ -50,7 +50,7 @@ const Index = () => {
   });
   const [speechSpeed, setSpeechSpeed] = useState<number>(() => {
     const saved = localStorage.getItem("speakup-speech-speed");
-    return saved ? Number(saved) : 0.95;
+    return saved ? Number(saved) : 1.0;
   });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
