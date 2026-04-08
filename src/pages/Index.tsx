@@ -12,7 +12,7 @@ import ListenOnlyDisplay from "@/components/ListenOnlyDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { splitSentences } from "@/pages/Scripts";
-import { useGoogleTTS, GOOGLE_TTS_VOICES } from "@/hooks/useGoogleTTS";
+import { useGoogleTTS, GOOGLE_TTS_VOICES, unlockAudio } from "@/hooks/useGoogleTTS";
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -118,6 +118,7 @@ const Index = () => {
   }, [user]);
 
   const handleLoadScript = (s: SavedScript) => {
+    unlockAudio();
     const sentences = splitSentences(s.text);
     if (sentences.length === 0) return;
     setCustomSentences(sentences);
@@ -148,6 +149,7 @@ const Index = () => {
   };
 
   const handleSentenceNav = (dir: -1 | 1) => {
+    unlockAudio();
     const next = sentenceIndex + dir;
     if (next < 0 || next >= customSentences.length) return;
     setSentenceIndex(next);
@@ -157,6 +159,7 @@ const Index = () => {
 
   const handleListen = useCallback((autoRecordAfter = false) => {
     if (!script) return;
+    unlockAudio();
     googleCancel();
     googleSpeak(script, selectedVoiceName, () => {
       if (autoRecordAfter) {
