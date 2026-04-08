@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play, FileText, X, ChevronDown } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import ListenOnlyDisplay from "@/components/ListenOnlyDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { splitSentences } from "@/pages/Scripts";
+import { useGoogleTTS, GOOGLE_TTS_VOICES } from "@/hooks/useGoogleTTS";
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -31,14 +32,14 @@ const Index = () => {
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(4);
   const [repeatCount, setRepeatCount] = useState(1);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
+    return localStorage.getItem("speakup-google-voice") || "en-US-Neural2-F";
+  });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -46,6 +47,8 @@ const Index = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const silenceCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const { speak: googleSpeak, cancel: googleCancel, isSpeaking } = useGoogleTTS();
 
   const isCustomMode = customSentences.length > 0;
 
@@ -100,7 +103,7 @@ const Index = () => {
     setRecognized("");
     setError(null);
     setAudioURL(null);
-    window.speechSynthesis?.cancel();
+    googleCancel();
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsListening(false);
@@ -123,87 +126,15 @@ const Index = () => {
     resetPracticeState();
   };
 
-  // 자연스러운 영어 음성 선택
-  const getBestVoice = useCallback(() => {
-    const voices = window.speechSynthesis?.getVoices() || [];
-    // 사용자가 선택한 음성이 있으면 우선 사용
-    if (selectedVoiceName) {
-      const selected = voices.find((v) => v.name === selectedVoiceName);
-      if (selected) return selected;
-    }
-    const preferred = [
-      "Google UK English Female",
-      "Google UK English Male",
-      "Google US English",
-      "Microsoft Zira",
-      "Microsoft David",
-      "Samantha",
-      "Karen",
-      "Daniel",
-    ];
-    for (const name of preferred) {
-      const v = voices.find((voice) => voice.name.includes(name));
-      if (v) return v;
-    }
-    return voices.find((v) => v.lang.startsWith("en")) || null;
-  }, [selectedVoiceName]);
-
   const handleListen = useCallback((autoRecordAfter = false) => {
-    if (!window.speechSynthesis) {
-      setError("This browser does not support speech synthesis.");
-      return;
-    }
     if (!script) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.lang = "en-US";
-    utterance.rate = 0.92;
-    utterance.pitch = 1.0;
-    const voice = getBestVoice();
-    if (voice) utterance.voice = voice;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
+    googleCancel();
+    googleSpeak(script, selectedVoiceName, () => {
       if (autoRecordAfter) {
-        // 원어민 발음 끝나면 자동으로 녹음 시작
         setTimeout(() => handleRecord(), 400);
       }
-    };
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setError("An error occurred during audio playback.");
-    };
-    window.speechSynthesis.speak(utterance);
-  }, [script, getBestVoice]);
-
-  // 음성 목록 로드 (비동기)
-  useEffect(() => {
-    const loadVoices = () => {
-      const voices = window.speechSynthesis?.getVoices() || [];
-      // Exclude novelty / sound-effect voices that aren't real speech
-      const noveltyNames = [
-        "Bad News", "Bahh", "Bells", "Boing", "Bubbles", "Cellos",
-        "Good News", "Jester", "Organ", "Superstar", "Trinoids",
-        "Whisper", "Wobble", "Zarvox", "Albert", "Fred", "Hysterical",
-        "Princess", "Pipe Organ", "Deranged", "Ralph",
-      ];
-      const enVoices = voices.filter((v) =>
-        v.lang.startsWith("en") &&
-        !noveltyNames.some((n) => v.name.includes(n))
-      );
-      setAvailableVoices(enVoices);
-      // 저장된 음성 복원
-      if (!selectedVoiceName) {
-        const saved = localStorage.getItem("speakup-voice");
-        if (saved && enVoices.find((v) => v.name === saved)) {
-          setSelectedVoiceName(saved);
-        }
-      }
-    };
-    loadVoices();
-    window.speechSynthesis?.addEventListener?.("voiceschanged", loadVoices);
-    return () => window.speechSynthesis?.removeEventListener?.("voiceschanged", loadVoices);
-  }, []);
+    });
+  }, [script, selectedVoiceName, googleSpeak, googleCancel]);
 
   // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작 (listen-only 모드가 아닐 때만)
   useEffect(() => {
@@ -370,28 +301,24 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            {availableVoices.length > 0 && (
-              <Select
-                value={selectedVoiceName || "auto"}
-                onValueChange={(val) => {
-                  const name = val === "auto" ? "" : val;
-                  setSelectedVoiceName(name);
-                  localStorage.setItem("speakup-voice", name);
-                }}
-              >
-                <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
-                  <SelectValue placeholder="Select Voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">🔊 Auto</SelectItem>
-                  {availableVoices.map((v) => (
-                    <SelectItem key={v.name} value={v.name}>
-                      {v.name.replace("Microsoft ", "MS ").replace("Google ", "G ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={selectedVoiceName}
+              onValueChange={(val) => {
+                setSelectedVoiceName(val);
+                localStorage.setItem("speakup-google-voice", val);
+              }}
+            >
+              <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
+                <SelectValue placeholder="Select Voice" />
+              </SelectTrigger>
+              <SelectContent>
+                {GOOGLE_TTS_VOICES.map((v) => (
+                  <SelectItem key={v.name} value={v.name}>
+                    🔊 {v.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {isCustomMode ? (
               <Button
                 variant="ghost"
@@ -502,6 +429,7 @@ const Index = () => {
               sentence={script}
               delaySeconds={autoAdvanceDelay}
               repeatCount={repeatCount}
+              voiceName={selectedVoiceName}
               onDone={() => {
                 // Auto-advance to next sentence
                 if (sentenceIndex < customSentences.length - 1) {

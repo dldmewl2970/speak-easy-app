@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Languages, Loader2, BookOpen, Lightbulb } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useGoogleTTS } from "@/hooks/useGoogleTTS";
 
 interface AnalysisResult {
   translation: string;
@@ -14,6 +15,7 @@ interface ListenOnlyDisplayProps {
   onDone: () => void;
   delaySeconds?: number;
   repeatCount?: number;
+  voiceName?: string;
 }
 
 const renderProsody = (prosody: string) => {
@@ -42,13 +44,14 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1 }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
   const [currentRepeat, setCurrentRepeat] = useState(0);
+  const { speak, cancel } = useGoogleTTS();
 
-  // Play TTS with repeat support
+  // Play TTS with repeat support using Google Cloud TTS
   useEffect(() => {
     if (!sentence) return;
     setTtsFinished(false);
@@ -58,15 +61,11 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     let playCount = 0;
 
     const playOnce = () => {
-      if (cancelled || !window.speechSynthesis) {
+      if (cancelled) {
         if (!cancelled) setTtsFinished(true);
         return;
       }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(sentence);
-      utterance.lang = "en-US";
-      utterance.rate = 0.92;
-      utterance.onend = () => {
+      speak(sentence, voiceName, () => {
         if (cancelled) return;
         playCount++;
         setCurrentRepeat(playCount);
@@ -75,11 +74,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
         } else {
           setTtsFinished(true);
         }
-      };
-      utterance.onerror = () => {
-        if (!cancelled) setTtsFinished(true);
-      };
-      window.speechSynthesis.speak(utterance);
+      });
     };
 
     const timer = setTimeout(() => playOnce(), 300);
@@ -87,9 +82,9 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     return () => {
       cancelled = true;
       clearTimeout(timer);
-      window.speechSynthesis?.cancel();
+      cancel();
     };
-  }, [sentence, repeatCount]);
+  }, [sentence, repeatCount, voiceName]);
 
   // Fetch analysis
   useEffect(() => {
