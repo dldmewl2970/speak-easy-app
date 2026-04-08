@@ -46,7 +46,7 @@ const Index = () => {
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
-    return localStorage.getItem("speakup-google-voice") || "en-US-Neural2-F";
+    return localStorage.getItem("speakup-google-voice") || "en-AU-Neural2-A";
   });
   const [speechSpeed, setSpeechSpeed] = useState<number>(() => {
     const saved = localStorage.getItem("speakup-speech-speed");
