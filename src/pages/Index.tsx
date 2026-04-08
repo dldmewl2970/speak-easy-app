@@ -345,7 +345,7 @@ const Index = () => {
               />
               <span className="text-[10px] text-muted-foreground font-mono w-7">{speechSpeed.toFixed(2)}×</span>
             </div>
-            {isCustomMode ? (
+            {isCustomMode && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -354,16 +354,6 @@ const Index = () => {
               >
                 <X className="w-3.5 h-3.5" />
                 Clear
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/scripts")}
-                className="gap-1.5 h-8 text-xs rounded-lg"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                My Scripts
               </Button>
             )}
           </div>
@@ -416,6 +406,17 @@ const Index = () => {
                   <span className="text-xs text-muted-foreground font-mono w-6">{autoAdvanceDelay}s</span>
                 </div>
               </>
+            )}
+            {!isCustomMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/scripts")}
+                className="gap-1.5 h-8 text-xs rounded-lg ml-4"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                My Scripts
+              </Button>
             )}
           </div>
 
