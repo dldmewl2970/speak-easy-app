@@ -296,11 +296,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border/50 px-6 py-3 backdrop-blur-sm bg-background/80 sticky top-0 z-40">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <header className="border-b border-border/50 px-4 sm:px-6 py-3 backdrop-blur-sm bg-background/80 sticky top-0 z-40">
+        <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={handleCustomClear}
-            className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           >
             <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/25">
               <Volume2 className="w-4 h-4 text-primary-foreground" />
@@ -309,7 +309,7 @@ const Index = () => {
               SpeakUp
             </h1>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Select
               value={selectedVoiceName}
               onValueChange={(val) => {
@@ -317,7 +317,7 @@ const Index = () => {
                 localStorage.setItem("speakup-google-voice", val);
               }}
             >
-              <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg border-border/50">
+              <SelectTrigger className="w-[130px] sm:w-[160px] h-8 text-xs rounded-lg border-border/50">
                 <SelectValue placeholder="Select Voice" />
               </SelectTrigger>
               <SelectContent>
@@ -341,7 +341,7 @@ const Index = () => {
                   setSpeechSpeed(val);
                   localStorage.setItem("speakup-speech-speed", String(val));
                 }}
-                className="w-16 h-1.5 accent-primary"
+                className="w-14 sm:w-16 h-1.5 accent-primary"
               />
               <span className="text-[10px] text-muted-foreground font-mono w-7">{speechSpeed.toFixed(2)}×</span>
             </div>
