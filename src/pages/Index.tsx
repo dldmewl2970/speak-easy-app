@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X, Pause, PlayCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ const Index = () => {
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(2);
   const [repeatCount, setRepeatCount] = useState(1);
   const [scriptLoopCount, setScriptLoopCount] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -503,25 +504,50 @@ const Index = () => {
 
           {/* Listen-only mode content */}
           {listenOnly && isCustomMode && script ? (
-            <ListenOnlyDisplay
-              sentence={script}
-              delaySeconds={autoAdvanceDelay}
-              repeatCount={repeatCount}
-              voiceName={selectedVoiceName}
-              speechSpeed={speechSpeed}
-              onDone={() => {
-                if (sentenceIndex < customSentences.length - 1) {
-                  const next = sentenceIndex + 1;
-                  setSentenceIndex(next);
-                  setScript(customSentences[next]);
-                } else if (scriptLoopCount < 2) {
-                  // Loop back to first sentence (up to 3 total loops: 0, 1, 2)
-                  setScriptLoopCount((prev) => prev + 1);
-                  setSentenceIndex(0);
-                  setScript(customSentences[0]);
-                }
-              }}
-            />
+            <div className="space-y-3">
+              <div className="flex justify-center">
+                <Button
+                  variant={isPaused ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setIsPaused((p) => !p);
+                    if (!isPaused) googleCancel();
+                  }}
+                  className="gap-2 text-xs rounded-lg h-8"
+                >
+                  {isPaused ? (
+                    <>
+                      <PlayCircle className="w-3.5 h-3.5" />
+                      Resume
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="w-3.5 h-3.5" />
+                      Pause
+                    </>
+                  )}
+                </Button>
+              </div>
+              <ListenOnlyDisplay
+                sentence={script}
+                delaySeconds={autoAdvanceDelay}
+                repeatCount={repeatCount}
+                voiceName={selectedVoiceName}
+                speechSpeed={speechSpeed}
+                isPaused={isPaused}
+                onDone={() => {
+                  if (sentenceIndex < customSentences.length - 1) {
+                    const next = sentenceIndex + 1;
+                    setSentenceIndex(next);
+                    setScript(customSentences[next]);
+                  } else if (scriptLoopCount < 2) {
+                    setScriptLoopCount((prev) => prev + 1);
+                    setSentenceIndex(0);
+                    setScript(customSentences[0]);
+                  }
+                }}
+              />
+            </div>
           ) : (
             <>
               {/* Action Buttons */}

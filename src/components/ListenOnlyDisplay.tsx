@@ -17,6 +17,7 @@ interface ListenOnlyDisplayProps {
   repeatCount?: number;
   voiceName?: string;
   speechSpeed?: number;
+  isPaused?: boolean;
 }
 
 const renderProsody = (prosody: string) => {
@@ -45,7 +46,7 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed, isPaused = false }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
@@ -54,7 +55,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
 
   // Play TTS with repeat support using Google Cloud TTS
   useEffect(() => {
-    if (!sentence) return;
+    if (!sentence || isPaused) return;
     setTtsFinished(false);
     setCurrentRepeat(0);
 
@@ -62,7 +63,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     let playCount = 0;
 
     const playOnce = () => {
-      if (cancelled) return;
+      if (cancelled || isPaused) return;
       speak(sentence, voiceName, () => {
         if (cancelled) return;
         playCount++;
@@ -82,7 +83,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
       clearTimeout(timer);
       cancel();
     };
-  }, [sentence, repeatCount, voiceName, speechSpeed]);
+  }, [sentence, repeatCount, voiceName, speechSpeed, isPaused]);
 
   // Fetch analysis
   useEffect(() => {
@@ -106,12 +107,12 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
 
   // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {
-    if (!ttsFinished || isAnalyzing) return;
+    if (!ttsFinished || isAnalyzing || isPaused) return;
     const timer = setTimeout(() => {
       onDone();
     }, delaySeconds * 1000);
     return () => clearTimeout(timer);
-  }, [ttsFinished, isAnalyzing, onDone]);
+  }, [ttsFinished, isAnalyzing, onDone, isPaused]);
 
   return (
     <motion.div
