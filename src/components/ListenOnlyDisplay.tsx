@@ -17,6 +17,7 @@ interface ListenOnlyDisplayProps {
   repeatCount?: number;
   voiceName?: string;
   speechSpeed?: number;
+  isPaused?: boolean;
 }
 
 const renderProsody = (prosody: string) => {
