@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice } = await req.json();
+    const { text, voice, speed } = await req.json();
     if (!text) {
       return new Response(JSON.stringify({ error: "text is required" }), {
         status: 400,
