@@ -44,7 +44,7 @@ export function useGoogleTTS() {
 
     try {
       const { data, error } = await supabase.functions.invoke("tts", {
-        body: { text, voice: voice || undefined },
+        body: { text, voice: voice || undefined, speed: speed || undefined },
       });
 
       if (abortRef.current) return;

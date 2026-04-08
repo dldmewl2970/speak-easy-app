@@ -44,7 +44,7 @@ serve(async (req) => {
           },
           audioConfig: {
             audioEncoding: "MP3",
-            speakingRate: 0.95,
+            speakingRate: typeof speed === "number" ? speed : 0.95,
             pitch: 0,
           },
         }),
