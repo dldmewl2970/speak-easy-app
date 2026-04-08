@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Languages, Loader2, BookOpen, Lightbulb } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useGoogleTTS } from "@/hooks/useGoogleTTS";
 
 interface AnalysisResult {
   translation: string;
