@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 
 interface SentenceNavProps {
   current: number;
@@ -11,22 +11,27 @@ interface SentenceNavProps {
 }
 
 const SentenceNav = ({ current, total, onPrev, onNext, onGoTo }: SentenceNavProps) => {
-  const progress = ((current + 1) / total) * 100;
   const barRef = useRef<HTMLDivElement>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
-  const calcIndex = useCallback((clientX: number) => {
-    if (!barRef.current || !onGoTo) return;
+  const displayIndex = previewIndex ?? current;
+  const progress = ((displayIndex + 1) / total) * 100;
+
+  const calcIndex = useCallback((clientX: number): number => {
+    if (!barRef.current) return 0;
     const rect = barRef.current.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const index = Math.min(total - 1, Math.floor(ratio * total));
-    onGoTo(index);
-  }, [total, onGoTo]);
+    return Math.min(total - 1, Math.floor(ratio * total));
+  }, [total]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!onGoTo) return;
-    calcIndex(e.clientX);
-    const onMove = (ev: MouseEvent) => calcIndex(ev.clientX);
-    const onUp = () => {
+    setPreviewIndex(calcIndex(e.clientX));
+    const onMove = (ev: MouseEvent) => setPreviewIndex(calcIndex(ev.clientX));
+    const onUp = (ev: MouseEvent) => {
+      const finalIndex = calcIndex(ev.clientX);
+      setPreviewIndex(null);
+      onGoTo(finalIndex);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
@@ -34,14 +39,25 @@ const SentenceNav = ({ current, total, onPrev, onNext, onGoTo }: SentenceNavProp
     window.addEventListener("mouseup", onUp);
   }, [calcIndex, onGoTo]);
 
+  const lastTouchX = useRef<number>(0);
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!onGoTo) return;
-    calcIndex(e.touches[0].clientX);
+    lastTouchX.current = e.touches[0].clientX;
+    setPreviewIndex(calcIndex(e.touches[0].clientX));
   }, [calcIndex, onGoTo]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!onGoTo) return;
-    calcIndex(e.touches[0].clientX);
+    lastTouchX.current = e.touches[0].clientX;
+    setPreviewIndex(calcIndex(e.touches[0].clientX));
+  }, [calcIndex, onGoTo]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!onGoTo) return;
+    const finalIndex = calcIndex(lastTouchX.current);
+    setPreviewIndex(null);
+    onGoTo(finalIndex);
   }, [calcIndex, onGoTo]);
 
   return (
@@ -63,6 +79,7 @@ const SentenceNav = ({ current, total, onPrev, onNext, onGoTo }: SentenceNavProp
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <div
             className="h-full rounded-full bg-primary transition-all duration-300 ease-out pointer-events-none"
