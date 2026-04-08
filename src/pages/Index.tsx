@@ -39,6 +39,7 @@ const Index = () => {
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(2);
   const [repeatCount, setRepeatCount] = useState(1);
   const [scriptLoopCount, setScriptLoopCount] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognized, setRecognized] = useState("");
   const [error, setError] = useState<string | null>(null);
