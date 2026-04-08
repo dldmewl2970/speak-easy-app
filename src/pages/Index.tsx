@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play, FileText, X, ChevronDown } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import ListenOnlyDisplay from "@/components/ListenOnlyDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { splitSentences } from "@/pages/Scripts";
+import { useGoogleTTS, GOOGLE_TTS_VOICES } from "@/hooks/useGoogleTTS";
 const SpeechRecognitionAPI =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
