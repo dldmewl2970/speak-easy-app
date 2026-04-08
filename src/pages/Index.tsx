@@ -59,6 +59,7 @@ const Index = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const silenceCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const { speak: googleSpeak, cancel: googleCancel, isSpeaking } = useGoogleTTS();
 
