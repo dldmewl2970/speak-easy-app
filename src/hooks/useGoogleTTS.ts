@@ -28,7 +28,8 @@ export function useGoogleTTS() {
   const speak = useCallback(async (
     text: string,
     voice?: string,
-    onEnd?: () => void
+    onEnd?: () => void,
+    speed?: number
   ) => {
     if (!text) return;
     abortRef.current = false;
