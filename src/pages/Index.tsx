@@ -137,8 +137,8 @@ const Index = () => {
       if (autoRecordAfter) {
         setTimeout(() => handleRecord(), 400);
       }
-    });
-  }, [script, selectedVoiceName, googleSpeak, googleCancel]);
+    }, speechSpeed);
+  }, [script, selectedVoiceName, speechSpeed, googleSpeak, googleCancel]);
 
   // 스크립트 변경 시 자동으로 원어민 발음 재생 → 끝나면 녹음 시작 (listen-only 모드가 아닐 때만)
   useEffect(() => {
