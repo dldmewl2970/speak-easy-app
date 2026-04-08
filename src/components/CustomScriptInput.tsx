@@ -57,7 +57,7 @@ const CustomScriptInput = ({ onSubmit, isActive, onClear }: CustomScriptInputPro
   }, []);
 
   const charCount = text.length;
-  const MAX_CHARS = 3000;
+  const MAX_CHARS = 10000;
 
   const handleSubmit = () => {
     const sentences = splitSentences(text);
