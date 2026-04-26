@@ -62,13 +62,18 @@ serve(async (req) => {
     }
 
     const audioBuffer = await response.arrayBuffer();
-    const audioContent = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+    let binary = "";
+    for (const byte of new Uint8Array(audioBuffer)) {
+      binary += String.fromCharCode(byte);
+    }
+    const audioContent = btoa(binary);
     return new Response(JSON.stringify({ audioContent }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("TTS function error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
