@@ -19,33 +19,34 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("GOOGLE_CLOUD_API_KEY");
+    const apiKey = Deno.env.get("ELEVENLABS_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "GOOGLE_CLOUD_API_KEY not configured" }), {
+      return new Response(JSON.stringify({ error: "ELEVENLABS_API_KEY not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Default to a natural Neural2 voice
-    const voiceName = voice || "en-US-Neural2-F";
-    const languageCode = voiceName.substring(0, 5); // e.g. "en-US"
+    const voiceId = voice || "FGY2WhTYpPnrIDTdsKH5";
+    const speakingRate = typeof speed === "number" ? Math.min(Math.max(speed, 0.7), 1.2) : 1;
 
     const response = await fetch(
-      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "xi-api-key": apiKey,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          input: { text },
-          voice: {
-            languageCode,
-            name: voiceName,
-          },
-          audioConfig: {
-            audioEncoding: "MP3",
-            speakingRate: typeof speed === "number" ? speed : 0.95,
-            pitch: 0,
+          text,
+          model_id: "eleven_turbo_v2_5",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75,
+            style: 0.35,
+            use_speaker_boost: true,
+            speed: speakingRate,
           },
         }),
       }
@@ -53,21 +54,26 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Google TTS error:", response.status, errText);
+      console.error("ElevenLabs TTS error:", response.status, errText);
       return new Response(JSON.stringify({ error: "TTS API error", details: errText }), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const data = await response.json();
-    // data.audioContent is base64-encoded MP3
-    return new Response(JSON.stringify({ audioContent: data.audioContent }), {
+    const audioBuffer = await response.arrayBuffer();
+    let binary = "";
+    for (const byte of new Uint8Array(audioBuffer)) {
+      binary += String.fromCharCode(byte);
+    }
+    const audioContent = btoa(binary);
+    return new Response(JSON.stringify({ audioContent }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("TTS function error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

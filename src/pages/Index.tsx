@@ -47,7 +47,7 @@ const Index = () => {
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [sentenceIndex, setSentenceIndex] = useState(0);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>(() => {
-    return localStorage.getItem("speakup-google-voice") || "en-AU-Neural2-A";
+    return localStorage.getItem("speakup-elevenlabs-voice") || "FGY2WhTYpPnrIDTdsKH5";
   });
   const [speechSpeed, setSpeechSpeed] = useState<number>(() => {
     const saved = localStorage.getItem("speakup-speech-speed");
@@ -354,7 +354,7 @@ const Index = () => {
               value={selectedVoiceName}
               onValueChange={(val) => {
                 setSelectedVoiceName(val);
-                localStorage.setItem("speakup-google-voice", val);
+                localStorage.setItem("speakup-elevenlabs-voice", val);
               }}
             >
               <SelectTrigger className="w-[130px] sm:w-[160px] h-8 text-xs rounded-lg border-border/50">
