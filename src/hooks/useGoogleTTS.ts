@@ -1,23 +1,18 @@
 import { useCallback, useRef, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Available Google Cloud TTS Neural2 voices
+// Available ElevenLabs TTS voices
 export const GOOGLE_TTS_VOICES = [
-  { name: "en-US-Neural2-F", label: "US Female (F)" },
-  { name: "en-US-Neural2-A", label: "US Female (A)" },
-  { name: "en-US-Neural2-C", label: "US Female (C)" },
-  { name: "en-US-Neural2-E", label: "US Female (E)" },
-  { name: "en-US-Neural2-H", label: "US Female (H)" },
-  { name: "en-US-Neural2-D", label: "US Male (D)" },
-  { name: "en-US-Neural2-I", label: "US Male (I)" },
-  { name: "en-US-Neural2-J", label: "US Male (J)" },
-  { name: "en-GB-Neural2-A", label: "UK Female (A)" },
-  { name: "en-GB-Neural2-C", label: "UK Female (C)" },
-  { name: "en-GB-Neural2-F", label: "UK Female (F)" },
-  { name: "en-GB-Neural2-B", label: "UK Male (B)" },
-  { name: "en-GB-Neural2-D", label: "UK Male (D)" },
-  { name: "en-AU-Neural2-A", label: "AU Female (A)" },
-  { name: "en-AU-Neural2-C", label: "AU Male (C)" },
+  { name: "FGY2WhTYpPnrIDTdsKH5", label: "Laura" },
+  { name: "EXAVITQu4vr4xnSDxMaL", label: "Sarah" },
+  { name: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice" },
+  { name: "XrExE9yKIg1WjnnlVkGX", label: "Matilda" },
+  { name: "IKne3meq5aSn9XLyUdCD", label: "Charlie" },
+  { name: "JBFqnCBsd6RMkjVDRZzb", label: "George" },
+  { name: "TX3LPaxmHKxFdv7VOQHJ", label: "Liam" },
+  { name: "nPczCjzI2devNBz1zQrb", label: "Brian" },
+  { name: "onwK4e9ZLuTAKqWW03F9", label: "Daniel" },
+  { name: "pFZP5JQG7iQjIQuC4Bku", label: "Lily" },
 ];
 
 // Shared audio element to avoid mobile autoplay restrictions
