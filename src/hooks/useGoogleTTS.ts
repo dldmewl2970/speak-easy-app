@@ -3,16 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Available ElevenLabs TTS voices
 export const GOOGLE_TTS_VOICES = [
-  { name: "FGY2WhTYpPnrIDTdsKH5", label: "Laura" },
-  { name: "EXAVITQu4vr4xnSDxMaL", label: "Sarah" },
-  { name: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice" },
-  { name: "XrExE9yKIg1WjnnlVkGX", label: "Matilda" },
-  { name: "IKne3meq5aSn9XLyUdCD", label: "Charlie" },
-  { name: "JBFqnCBsd6RMkjVDRZzb", label: "George" },
-  { name: "TX3LPaxmHKxFdv7VOQHJ", label: "Liam" },
-  { name: "nPczCjzI2devNBz1zQrb", label: "Brian" },
-  { name: "onwK4e9ZLuTAKqWW03F9", label: "Daniel" },
-  { name: "pFZP5JQG7iQjIQuC4Bku", label: "Lily" },
+  { name: "FGY2WhTYpPnrIDTdsKH5", label: "Laura", country: "US", flag: "🇺🇸" },
+  { name: "EXAVITQu4vr4xnSDxMaL", label: "Sarah", country: "US", flag: "🇺🇸" },
+  { name: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice", country: "UK", flag: "🇬🇧" },
+  { name: "XrExE9yKIg1WjnnlVkGX", label: "Matilda", country: "US", flag: "🇺🇸" },
+  { name: "IKne3meq5aSn9XLyUdCD", label: "Charlie", country: "AU", flag: "🇦🇺" },
+  { name: "JBFqnCBsd6RMkjVDRZzb", label: "George", country: "UK", flag: "🇬🇧" },
+  { name: "TX3LPaxmHKxFdv7VOQHJ", label: "Liam", country: "US", flag: "🇺🇸" },
+  { name: "nPczCjzI2devNBz1zQrb", label: "Brian", country: "US", flag: "🇺🇸" },
+  { name: "onwK4e9ZLuTAKqWW03F9", label: "Daniel", country: "UK", flag: "🇬🇧" },
+  { name: "pFZP5JQG7iQjIQuC4Bku", label: "Lily", country: "UK", flag: "🇬🇧" },
 ];
 
 // Shared audio element to avoid mobile autoplay restrictions
