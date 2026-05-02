@@ -307,8 +307,24 @@ const Index = () => {
       } else if (event.error === "no-speech" || event.error === "aborted") {
         // 무시 — no-speech는 무음 감지로 처리, aborted는 모바일에서 정상 중단
       } else if (event.error === "network") {
+        // Auto-retry up to 2 times — Chrome's speech API often has transient network hiccups
+        if (networkRetryRef.current < 2 && navigator.onLine) {
+          networkRetryRef.current += 1;
+          try {
+            recognition.stop();
+          } catch {}
+          setTimeout(() => {
+            try {
+              recognition.start();
+            } catch {}
+          }, 500);
+          return;
+        }
+        const offline = !navigator.onLine;
         setError(
-          "Network error: Chrome speech recognition requires a connection to Google servers."
+          offline
+            ? "You appear to be offline. Speech recognition requires an internet connection."
+            : "Speech recognition couldn't reach Google's servers. Check your Wi-Fi/mobile data, disable VPN/ad-blockers, or try again."
         );
         stopRecording();
       } else {
