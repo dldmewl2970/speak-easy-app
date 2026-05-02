@@ -57,6 +57,7 @@ const Index = () => {
     return localStorage.getItem("speakup-voice-country") || "ALL";
   });
   const recognitionRef = useRef<any>(null);
+  const networkRetryRef = useRef(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
