@@ -354,6 +354,38 @@ const Index = () => {
           </button>
           <div className="flex items-center gap-2 flex-wrap">
             <Select
+              value={selectedCountry}
+              onValueChange={(val) => {
+                setSelectedCountry(val);
+                localStorage.setItem("speakup-voice-country", val);
+                if (val !== "ALL") {
+                  const current = GOOGLE_TTS_VOICES.find((v) => v.name === selectedVoiceName);
+                  if (!current || current.country !== val) {
+                    const first = GOOGLE_TTS_VOICES.find((v) => v.country === val);
+                    if (first) {
+                      setSelectedVoiceName(first.name);
+                      localStorage.setItem("speakup-elevenlabs-voice", first.name);
+                    }
+                  }
+                }
+              }}
+            >
+              <SelectTrigger className="w-[90px] h-8 text-xs rounded-lg border-border/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">🌐 All</SelectItem>
+                {Array.from(new Set(GOOGLE_TTS_VOICES.map((v) => v.country))).map((c) => {
+                  const flag = GOOGLE_TTS_VOICES.find((v) => v.country === c)?.flag;
+                  return (
+                    <SelectItem key={c} value={c}>
+                      {flag} {c}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <Select
               value={selectedVoiceName}
               onValueChange={(val) => {
                 setSelectedVoiceName(val);
@@ -364,7 +396,7 @@ const Index = () => {
                 <SelectValue placeholder="Select Voice" />
               </SelectTrigger>
               <SelectContent>
-                {GOOGLE_TTS_VOICES.map((v) => (
+                {GOOGLE_TTS_VOICES.filter((v) => selectedCountry === "ALL" || v.country === selectedCountry).map((v) => (
                   <SelectItem key={v.name} value={v.name}>
                     {v.flag} {v.label} <span className="text-muted-foreground">({v.country})</span>
                   </SelectItem>
