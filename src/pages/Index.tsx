@@ -53,6 +53,9 @@ const Index = () => {
     const saved = localStorage.getItem("speakup-speech-speed");
     return saved ? Number(saved) : 1.0;
   });
+  const [selectedCountry, setSelectedCountry] = useState<string>(() => {
+    return localStorage.getItem("speakup-voice-country") || "ALL";
+  });
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
