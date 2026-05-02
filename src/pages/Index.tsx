@@ -234,6 +234,7 @@ const Index = () => {
     setError(null);
     setRecognized("");
     setAudioURL(null);
+    networkRetryRef.current = 0;
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       // 오디오 분석기 설정 (무음 감지용)
