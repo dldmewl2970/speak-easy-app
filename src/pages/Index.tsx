@@ -357,13 +357,13 @@ const Index = () => {
                 localStorage.setItem("speakup-elevenlabs-voice", val);
               }}
             >
-              <SelectTrigger className="w-[130px] sm:w-[160px] h-8 text-xs rounded-lg border-border/50">
+              <SelectTrigger className="w-[150px] sm:w-[180px] h-8 text-xs rounded-lg border-border/50">
                 <SelectValue placeholder="Select Voice" />
               </SelectTrigger>
               <SelectContent>
                 {GOOGLE_TTS_VOICES.map((v) => (
                   <SelectItem key={v.name} value={v.name}>
-                    🔊 {v.label}
+                    {v.flag} {v.label} <span className="text-muted-foreground">({v.country})</span>
                   </SelectItem>
                 ))}
               </SelectContent>
