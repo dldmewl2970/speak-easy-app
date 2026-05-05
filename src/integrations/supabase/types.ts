@@ -17,6 +17,7 @@ export type Database = {
       scripts: {
         Row: {
           created_at: string
+          folder: string | null
           id: string
           name: string
           text: string
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          folder?: string | null
           id?: string
           name: string
           text: string
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          folder?: string | null
           id?: string
           name?: string
           text?: string
