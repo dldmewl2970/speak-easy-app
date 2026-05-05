@@ -4,6 +4,13 @@ import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play, LogIn, LogOut } from "lu
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,11 +22,21 @@ interface SavedScript {
   created_at: string;
 }
 
-export function splitSentences(t: string) {
+export function splitSentences(t: string, divider?: RegExp) {
   return t
-    .split(/[\n.]/)
+    .split(divider ?? /[\n.]/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
+}
+
+function compileDivider(mode: string, custom: string): { regex: RegExp | null; error: string | null } {
+  if (mode === "default") return { regex: /[\n.]/, error: null };
+  if (!custom.trim()) return { regex: null, error: "Enter a regex pattern" };
+  try {
+    return { regex: new RegExp(custom), error: null };
+  } catch (e) {
+    return { regex: null, error: "Invalid regular expression" };
+  }
 }
 
 const Scripts = () => {
