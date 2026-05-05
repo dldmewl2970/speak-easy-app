@@ -76,8 +76,18 @@ const Scripts = () => {
   const charCount = text.length;
   const MAX_CHARS = 10000;
 
-  const handleSave = async () => {
-    if (!text.trim() || !user) return;
+  const handleSave = async (): Promise<{ saved: SavedScript; sentences: string[] } | null> => {
+    if (!text.trim() || !user) return null;
+    const { regex, error: rxErr } = compileDivider(dividerMode, customRegex);
+    if (rxErr || !regex) {
+      toast.error(rxErr || "Invalid divider");
+      return null;
+    }
+    const sentences = splitSentences(text, regex);
+    if (sentences.length === 0) {
+      toast.error("No sentences parsed from text");
+      return null;
+    }
     const name = scriptName.trim() || `Script ${saved.length + 1}`;
     const { data, error } = await supabase
       .from("scripts")
@@ -86,12 +96,13 @@ const Scripts = () => {
       .single();
     if (error) {
       toast.error("Failed to save script");
-      return;
+      return null;
     }
     setSaved([data, ...saved]);
     setScriptName("");
     setText("");
     toast.success("Script saved!");
+    return { saved: data, sentences };
   };
 
   const handleDelete = async (id: string) => {
@@ -122,8 +133,20 @@ const Scripts = () => {
     setScriptName(script.name);
   };
 
-  const handleStartPractice = () => {
-    const sentences = splitSentences(text);
+  const handleStartPractice = async () => {
+    if (user) {
+      const result = await handleSave();
+      if (!result) return;
+      sessionStorage.setItem("speakup-active-sentences", JSON.stringify(result.sentences));
+      navigate("/");
+      return;
+    }
+    const { regex, error: rxErr } = compileDivider(dividerMode, customRegex);
+    if (rxErr || !regex) {
+      toast.error(rxErr || "Invalid divider");
+      return;
+    }
+    const sentences = splitSentences(text, regex);
     if (sentences.length === 0) return;
     sessionStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     navigate("/");
