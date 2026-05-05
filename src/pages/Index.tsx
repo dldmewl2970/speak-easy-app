@@ -488,6 +488,27 @@ const Index = () => {
             <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
               listen-only mode
             </label>
+            <div className="flex items-center gap-2 ml-4">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Translation:</span>
+              {[
+                { label: "On", value: true },
+                { label: "Off", value: false },
+              ].map((opt) => (
+                <label key={opt.label} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="translationEnabled"
+                    checked={translationEnabled === opt.value}
+                    onChange={() => {
+                      setTranslationEnabled(opt.value);
+                      sessionStorage.setItem("speakup-translation-enabled", String(opt.value));
+                    }}
+                    className="accent-primary w-3.5 h-3.5"
+                  />
+                  <span className="text-xs text-muted-foreground">{opt.label}</span>
+                </label>
+              ))}
+            </div>
             {listenOnly && (
               <>
                 <div className="flex items-center gap-2 ml-4">
