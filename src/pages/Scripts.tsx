@@ -4,6 +4,13 @@ import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play, LogIn, LogOut } from "lu
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,11 +22,21 @@ interface SavedScript {
   created_at: string;
 }
 
-export function splitSentences(t: string) {
+export function splitSentences(t: string, divider?: RegExp) {
   return t
-    .split(/[\n.]/)
+    .split(divider ?? /[\n.]/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
+}
+
+function compileDivider(mode: string, custom: string): { regex: RegExp | null; error: string | null } {
+  if (mode === "default") return { regex: /[\n.]/, error: null };
+  if (!custom.trim()) return { regex: null, error: "Enter a regex pattern" };
+  try {
+    return { regex: new RegExp(custom), error: null };
+  } catch (e) {
+    return { regex: null, error: "Invalid regular expression" };
+  }
 }
 
 const Scripts = () => {
@@ -31,6 +48,8 @@ const Scripts = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [dividerMode, setDividerMode] = useState<"default" | "custom">("default");
+  const [customRegex, setCustomRegex] = useState("");
 
   // Load scripts from DB
   useEffect(() => {
@@ -57,8 +76,18 @@ const Scripts = () => {
   const charCount = text.length;
   const MAX_CHARS = 10000;
 
-  const handleSave = async () => {
-    if (!text.trim() || !user) return;
+  const handleSave = async (): Promise<{ saved: SavedScript; sentences: string[] } | null> => {
+    if (!text.trim() || !user) return null;
+    const { regex, error: rxErr } = compileDivider(dividerMode, customRegex);
+    if (rxErr || !regex) {
+      toast.error(rxErr || "Invalid divider");
+      return null;
+    }
+    const sentences = splitSentences(text, regex);
+    if (sentences.length === 0) {
+      toast.error("No sentences parsed from text");
+      return null;
+    }
     const name = scriptName.trim() || `Script ${saved.length + 1}`;
     const { data, error } = await supabase
       .from("scripts")
@@ -67,12 +96,13 @@ const Scripts = () => {
       .single();
     if (error) {
       toast.error("Failed to save script");
-      return;
+      return null;
     }
     setSaved([data, ...saved]);
     setScriptName("");
     setText("");
     toast.success("Script saved!");
+    return { saved: data, sentences };
   };
 
   const handleDelete = async (id: string) => {
@@ -103,8 +133,20 @@ const Scripts = () => {
     setScriptName(script.name);
   };
 
-  const handleStartPractice = () => {
-    const sentences = splitSentences(text);
+  const handleStartPractice = async () => {
+    if (user) {
+      const result = await handleSave();
+      if (!result) return;
+      sessionStorage.setItem("speakup-active-sentences", JSON.stringify(result.sentences));
+      navigate("/");
+      return;
+    }
+    const { regex, error: rxErr } = compileDivider(dividerMode, customRegex);
+    if (rxErr || !regex) {
+      toast.error(rxErr || "Invalid divider");
+      return;
+    }
+    const sentences = splitSentences(text, regex);
     if (sentences.length === 0) return;
     sessionStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     navigate("/");
@@ -173,6 +215,37 @@ const Scripts = () => {
               className="min-h-[200px] resize-y text-base"
             />
 
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-1.5 sm:w-56">
+                <label className="text-xs font-medium text-muted-foreground">Divider Options</label>
+                <Select
+                  value={dividerMode}
+                  onValueChange={(v) => setDividerMode(v as "default" | "custom")}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Enter or Period</SelectItem>
+                    <SelectItem value="custom">Custom Regex</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {dividerMode === "custom" && (
+                <div className="flex flex-col gap-1.5 flex-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Custom Regex (e.g. <code>,|\/</code>)
+                  </label>
+                  <Input
+                    value={customRegex}
+                    onChange={(e) => setCustomRegex(e.target.value)}
+                    placeholder=",|\\/"
+                    className="h-9 text-sm font-mono"
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-3">
               <Input
                 value={scriptName}
@@ -208,7 +281,7 @@ const Scripts = () => {
                 className="gap-2"
               >
                 <Play className="w-4 h-4" />
-                Start Practice ({splitSentences(text).length} sentences)
+                Start Practice ({splitSentences(text, compileDivider(dividerMode, customRegex).regex ?? undefined).length} sentences)
               </Button>
             </div>
           </div>
