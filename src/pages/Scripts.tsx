@@ -281,7 +281,7 @@ const Scripts = () => {
                 className="gap-2"
               >
                 <Play className="w-4 h-4" />
-                Start Practice ({splitSentences(text).length} sentences)
+                Start Practice ({splitSentences(text, compileDivider(dividerMode, customRegex).regex ?? undefined).length} sentences)
               </Button>
             </div>
           </div>
