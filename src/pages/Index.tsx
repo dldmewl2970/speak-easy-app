@@ -56,6 +56,9 @@ const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>(() => {
     return localStorage.getItem("speakup-voice-country") || "ALL";
   });
+  const [translationEnabled, setTranslationEnabled] = useState<boolean>(() => {
+    return sessionStorage.getItem("speakup-translation-enabled") === "true";
+  });
   const recognitionRef = useRef<any>(null);
   const networkRetryRef = useRef(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
