@@ -18,6 +18,7 @@ interface ListenOnlyDisplayProps {
   voiceName?: string;
   speechSpeed?: number;
   isPaused?: boolean;
+  translationEnabled?: boolean;
 }
 
 const renderProsody = (prosody: string) => {
@@ -46,7 +47,7 @@ const renderProsody = (prosody: string) => {
   });
 };
 
-const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed, isPaused = false }: ListenOnlyDisplayProps) => {
+const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1, voiceName, speechSpeed, isPaused = false, translationEnabled = false }: ListenOnlyDisplayProps) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [ttsFinished, setTtsFinished] = useState(false);
@@ -85,9 +86,13 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     };
   }, [sentence, repeatCount, voiceName, speechSpeed, isPaused]);
 
-  // Fetch analysis
+  // Fetch analysis (only when translation enabled)
   useEffect(() => {
-    if (!sentence) return;
+    if (!sentence || !translationEnabled) {
+      setAnalysis(null);
+      setIsAnalyzing(false);
+      return;
+    }
     setIsAnalyzing(true);
     setAnalysis(null);
 
@@ -103,7 +108,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
         }
       })
       .finally(() => setIsAnalyzing(false));
-  }, [sentence]);
+  }, [sentence, translationEnabled]);
 
   // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {

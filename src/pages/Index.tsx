@@ -56,6 +56,9 @@ const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>(() => {
     return localStorage.getItem("speakup-voice-country") || "ALL";
   });
+  const [translationEnabled, setTranslationEnabled] = useState<boolean>(() => {
+    return sessionStorage.getItem("speakup-translation-enabled") === "true";
+  });
   const recognitionRef = useRef<any>(null);
   const networkRetryRef = useRef(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -485,6 +488,27 @@ const Index = () => {
             <label htmlFor="listen-only" className="text-sm text-muted-foreground cursor-pointer select-none">
               listen-only mode
             </label>
+            <div className="flex items-center gap-2 ml-4">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Translation:</span>
+              {[
+                { label: "On", value: true },
+                { label: "Off", value: false },
+              ].map((opt) => (
+                <label key={opt.label} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="translationEnabled"
+                    checked={translationEnabled === opt.value}
+                    onChange={() => {
+                      setTranslationEnabled(opt.value);
+                      sessionStorage.setItem("speakup-translation-enabled", String(opt.value));
+                    }}
+                    className="accent-primary w-3.5 h-3.5"
+                  />
+                  <span className="text-xs text-muted-foreground">{opt.label}</span>
+                </label>
+              ))}
+            </div>
             {listenOnly && (
               <>
                 <div className="flex items-center gap-2 ml-4">
@@ -600,6 +624,7 @@ const Index = () => {
                 voiceName={selectedVoiceName}
                 speechSpeed={speechSpeed}
                 isPaused={isPaused}
+                translationEnabled={translationEnabled}
                 onDone={() => {
                   if (sentenceIndex < customSentences.length - 1) {
                     const next = sentenceIndex + 1;
