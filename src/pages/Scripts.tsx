@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play, LogIn, LogOut } from "lucide-react";
+import { Volume2, Save, Trash2, Edit2, ArrowLeft, Play, LogIn, LogOut, Folder, FolderOpen, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +20,11 @@ interface SavedScript {
   name: string;
   text: string;
   created_at: string;
+  folder: string | null;
 }
+
+const NEW_FOLDER_VALUE = "__new__";
+const NO_FOLDER_VALUE = "__none__";
 
 export function splitSentences(t: string, divider?: RegExp) {
   return t
@@ -50,6 +54,9 @@ const Scripts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dividerMode, setDividerMode] = useState<"default" | "custom">("default");
   const [customRegex, setCustomRegex] = useState("");
+  const [folderSelect, setFolderSelect] = useState<string>(NO_FOLDER_VALUE);
+  const [newFolder, setNewFolder] = useState("");
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 
   // Load scripts from DB
   useEffect(() => {
@@ -61,12 +68,12 @@ const Scripts = () => {
     const fetchScripts = async () => {
       const { data, error } = await supabase
         .from("scripts")
-        .select("id, name, text, created_at")
+        .select("id, name, text, created_at, folder")
         .order("created_at", { ascending: false });
       if (error) {
         toast.error("Failed to load scripts");
       } else {
-        setSaved(data || []);
+        setSaved((data as SavedScript[]) || []);
       }
       setIsLoading(false);
     };
@@ -75,6 +82,21 @@ const Scripts = () => {
 
   const charCount = text.length;
   const MAX_CHARS = 10000;
+
+  const existingFolders = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of saved) if (s.folder) set.add(s.folder);
+    return Array.from(set).sort();
+  }, [saved]);
+
+  const resolveFolder = (): string | null => {
+    if (folderSelect === NO_FOLDER_VALUE) return null;
+    if (folderSelect === NEW_FOLDER_VALUE) {
+      const v = newFolder.trim();
+      return v ? v : null;
+    }
+    return folderSelect;
+  };
 
   const handleSave = async (): Promise<{ saved: SavedScript; sentences: string[] } | null> => {
     if (!text.trim() || !user) return null;
@@ -89,20 +111,26 @@ const Scripts = () => {
       return null;
     }
     const name = scriptName.trim() || `Script ${saved.length + 1}`;
+    const folder = resolveFolder();
     const { data, error } = await supabase
       .from("scripts")
-      .insert({ name, text, user_id: user.id })
-      .select("id, name, text, created_at")
+      .insert({ name, text, user_id: user.id, folder })
+      .select("id, name, text, created_at, folder")
       .single();
     if (error) {
       toast.error("Failed to save script");
       return null;
     }
-    setSaved([data, ...saved]);
+    setSaved([data as SavedScript, ...saved]);
     setScriptName("");
     setText("");
+    setNewFolder("");
+    if (folder) {
+      setFolderSelect(folder);
+      setOpenFolders((p) => ({ ...p, [folder]: true }));
+    }
     toast.success("Script saved!");
-    return { saved: data, sentences };
+    return { saved: data as SavedScript, sentences };
   };
 
   const handleDelete = async (id: string) => {
@@ -131,6 +159,7 @@ const Scripts = () => {
   const handleLoad = (script: SavedScript) => {
     setText(script.text);
     setScriptName(script.name);
+    setFolderSelect(script.folder ?? NO_FOLDER_VALUE);
   };
 
   const handleStartPractice = async () => {
@@ -150,6 +179,70 @@ const Scripts = () => {
     if (sentences.length === 0) return;
     sessionStorage.setItem("speakup-active-sentences", JSON.stringify(sentences));
     navigate("/");
+  };
+
+  // Group saved scripts by folder
+  const grouped = useMemo(() => {
+    const folders: Record<string, SavedScript[]> = {};
+    const root: SavedScript[] = [];
+    for (const s of saved) {
+      if (s.folder) {
+        (folders[s.folder] ||= []).push(s);
+      } else {
+        root.push(s);
+      }
+    }
+    return { folders, root };
+  }, [saved]);
+
+  const renderScriptRow = (s: SavedScript) => {
+    const count = splitSentences(s.text).length;
+    const isEditing = editingId === s.id;
+    return (
+      <div
+        key={s.id}
+        className="flex items-center justify-between rounded-lg border border-border px-4 py-3 hover:bg-muted/50 transition-colors"
+      >
+        {isEditing ? (
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleRename(s.id); }}
+            className="flex-1 flex items-center gap-2 mr-2"
+          >
+            <Input
+              value={editingName}
+              onChange={(e) => setEditingName(e.target.value)}
+              className="h-8 text-sm"
+              autoFocus
+              maxLength={50}
+              onBlur={() => handleRename(s.id)}
+            />
+          </form>
+        ) : (
+          <button onClick={() => handleLoad(s)} className="flex-1 text-left truncate mr-3">
+            <span className="text-sm font-medium text-foreground">{s.name}</span>
+            <span className="text-xs text-muted-foreground ml-2">{count} sentences</span>
+          </button>
+        )}
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+            onClick={() => { setEditingId(s.id); setEditingName(s.name); }}
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={() => handleDelete(s.id)}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -246,14 +339,48 @@ const Scripts = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <Input
-                value={scriptName}
-                onChange={(e) => setScriptName(e.target.value)}
-                placeholder="Script name (e.g. Business English)"
-                className="flex-1 h-9 text-sm"
-                maxLength={50}
-              />
+            {/* Folder + Name row */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-1.5 sm:w-56">
+                <label className="text-xs font-medium text-muted-foreground">Folder</label>
+                <Select value={folderSelect} onValueChange={setFolderSelect}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="No folder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_FOLDER_VALUE}>No folder</SelectItem>
+                    {existingFolders.map((f) => (
+                      <SelectItem key={f} value={f}>{f}</SelectItem>
+                    ))}
+                    <SelectItem value={NEW_FOLDER_VALUE}>+ New folder…</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {folderSelect === NEW_FOLDER_VALUE && (
+                <div className="flex flex-col gap-1.5 sm:w-56">
+                  <label className="text-xs font-medium text-muted-foreground">New Folder Name</label>
+                  <Input
+                    value={newFolder}
+                    onChange={(e) => setNewFolder(e.target.value)}
+                    placeholder="e.g. Travel"
+                    className="h-9 text-sm"
+                    maxLength={50}
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-1.5 flex-1">
+                <label className="text-xs font-medium text-muted-foreground">Script Name</label>
+                <Input
+                  value={scriptName}
+                  onChange={(e) => setScriptName(e.target.value)}
+                  placeholder="Script name (e.g. Business English)"
+                  className="h-9 text-sm"
+                  maxLength={50}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
               <Button
                 variant="outline"
                 size="sm"
@@ -295,55 +422,35 @@ const Scripts = () => {
                 Saved Scripts
               </p>
               <div className="space-y-2">
-                {saved.map((s) => {
-                  const count = splitSentences(s.text).length;
-                  const isEditing = editingId === s.id;
+                {Object.keys(grouped.folders).sort().map((folderName) => {
+                  const isOpen = openFolders[folderName] ?? true;
+                  const items = grouped.folders[folderName];
                   return (
-                    <div
-                      key={s.id}
-                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 hover:bg-muted/50 transition-colors"
-                    >
-                      {isEditing ? (
-                        <form
-                          onSubmit={(e) => { e.preventDefault(); handleRename(s.id); }}
-                          className="flex-1 flex items-center gap-2 mr-2"
-                        >
-                          <Input
-                            value={editingName}
-                            onChange={(e) => setEditingName(e.target.value)}
-                            className="h-8 text-sm"
-                            autoFocus
-                            maxLength={50}
-                            onBlur={() => handleRename(s.id)}
-                          />
-                        </form>
-                      ) : (
-                        <button onClick={() => handleLoad(s)} className="flex-1 text-left truncate mr-3">
-                          <span className="text-sm font-medium text-foreground">{s.name}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{count} sentences</span>
-                        </button>
+                    <div key={folderName} className="rounded-lg border border-border overflow-hidden">
+                      <button
+                        onClick={() => setOpenFolders((p) => ({ ...p, [folderName]: !isOpen }))}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 bg-muted/40 hover:bg-muted transition-colors"
+                      >
+                        <ChevronRight
+                          className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`}
+                        />
+                        {isOpen ? (
+                          <FolderOpen className="w-4 h-4 text-primary" />
+                        ) : (
+                          <Folder className="w-4 h-4 text-primary" />
+                        )}
+                        <span className="text-sm font-medium text-foreground">{folderName}</span>
+                        <span className="text-xs text-muted-foreground ml-1">({items.length})</span>
+                      </button>
+                      {isOpen && (
+                        <div className="p-2 space-y-2 bg-background">
+                          {items.map(renderScriptRow)}
+                        </div>
                       )}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                          onClick={() => { setEditingId(s.id); setEditingName(s.name); }}
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDelete(s.id)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
                     </div>
                   );
                 })}
+                {grouped.root.map(renderScriptRow)}
               </div>
             </div>
           ) : user ? (
