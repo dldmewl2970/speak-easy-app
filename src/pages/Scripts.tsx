@@ -215,6 +215,37 @@ const Scripts = () => {
               className="min-h-[200px] resize-y text-base"
             />
 
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-1.5 sm:w-56">
+                <label className="text-xs font-medium text-muted-foreground">Divider Options</label>
+                <Select
+                  value={dividerMode}
+                  onValueChange={(v) => setDividerMode(v as "default" | "custom")}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Enter or Period</SelectItem>
+                    <SelectItem value="custom">Custom Regex</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {dividerMode === "custom" && (
+                <div className="flex flex-col gap-1.5 flex-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Custom Regex (e.g. <code>,|\/</code>)
+                  </label>
+                  <Input
+                    value={customRegex}
+                    onChange={(e) => setCustomRegex(e.target.value)}
+                    placeholder=",|\\/"
+                    className="h-9 text-sm font-mono"
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-3">
               <Input
                 value={scriptName}
