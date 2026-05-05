@@ -624,6 +624,7 @@ const Index = () => {
                 voiceName={selectedVoiceName}
                 speechSpeed={speechSpeed}
                 isPaused={isPaused}
+                translationEnabled={translationEnabled}
                 onDone={() => {
                   if (sentenceIndex < customSentences.length - 1) {
                     const next = sentenceIndex + 1;
