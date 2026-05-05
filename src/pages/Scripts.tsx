@@ -48,6 +48,8 @@ const Scripts = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [dividerMode, setDividerMode] = useState<"default" | "custom">("default");
+  const [customRegex, setCustomRegex] = useState("");
 
   // Load scripts from DB
   useEffect(() => {
