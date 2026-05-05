@@ -86,9 +86,13 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
     };
   }, [sentence, repeatCount, voiceName, speechSpeed, isPaused]);
 
-  // Fetch analysis
+  // Fetch analysis (only when translation enabled)
   useEffect(() => {
-    if (!sentence) return;
+    if (!sentence || !translationEnabled) {
+      setAnalysis(null);
+      setIsAnalyzing(false);
+      return;
+    }
     setIsAnalyzing(true);
     setAnalysis(null);
 
@@ -104,7 +108,7 @@ const ListenOnlyDisplay = ({ sentence, onDone, delaySeconds = 4, repeatCount = 1
         }
       })
       .finally(() => setIsAnalyzing(false));
-  }, [sentence]);
+  }, [sentence, translationEnabled]);
 
   // Auto-advance after TTS done + analysis loaded + delay
   useEffect(() => {
