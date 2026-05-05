@@ -18,6 +18,7 @@ interface ListenOnlyDisplayProps {
   voiceName?: string;
   speechSpeed?: number;
   isPaused?: boolean;
+  translationEnabled?: boolean;
 }
 
 const renderProsody = (prosody: string) => {
