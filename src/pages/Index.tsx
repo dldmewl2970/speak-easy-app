@@ -23,6 +23,75 @@ interface SavedScript {
   folder: string | null;
 }
 
+function SavedScriptsFolderList({
+  scripts,
+  onLoad,
+}: {
+  scripts: SavedScript[];
+  onLoad: (s: SavedScript) => void;
+}) {
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
+  const grouped = useMemo(() => {
+    const folders: Record<string, SavedScript[]> = {};
+    const root: SavedScript[] = [];
+    for (const s of scripts) {
+      if (s.folder) (folders[s.folder] ||= []).push(s);
+      else root.push(s);
+    }
+    return { folders, root };
+  }, [scripts]);
+
+  const renderRow = (s: SavedScript) => (
+    <button
+      key={s.id}
+      onClick={() => onLoad(s)}
+      className="w-full flex items-center justify-between rounded-lg border border-border px-4 py-3 hover:bg-muted/50 transition-colors text-left"
+    >
+      <span className="text-sm font-medium text-foreground truncate mr-3">{s.name}</span>
+      <span className="text-xs text-muted-foreground shrink-0">
+        {splitSentences(s.text).length} sentences
+      </span>
+    </button>
+  );
+
+  return (
+    <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
+      <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        Saved Scripts
+      </h2>
+      <div className="space-y-2 max-h-[360px] overflow-y-auto">
+        {Object.keys(grouped.folders).sort().map((folderName) => {
+          const isOpen = openFolders[folderName] ?? true;
+          const items = grouped.folders[folderName];
+          return (
+            <div key={folderName} className="rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setOpenFolders((p) => ({ ...p, [folderName]: !isOpen }))}
+                className="w-full flex items-center gap-2 px-4 py-2.5 bg-muted/40 hover:bg-muted transition-colors"
+              >
+                <ChevronRight
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`}
+                />
+                {isOpen ? (
+                  <FolderOpen className="w-4 h-4 text-primary" />
+                ) : (
+                  <Folder className="w-4 h-4 text-primary" />
+                )}
+                <span className="text-sm font-medium text-foreground">{folderName}</span>
+                <span className="text-xs text-muted-foreground ml-1">({items.length})</span>
+              </button>
+              {isOpen && (
+                <div className="p-2 space-y-2 bg-background">{items.map(renderRow)}</div>
+              )}
+            </div>
+          );
+        })}
+        {grouped.root.map(renderRow)}
+      </div>
+    </div>
+  );
+}
+
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
