@@ -132,9 +132,9 @@ const Index = () => {
     const fetchScripts = async () => {
       const { data } = await supabase
         .from("scripts")
-        .select("id, name, text")
+        .select("id, name, text, folder")
         .order("created_at", { ascending: false });
-      if (data) setSavedScripts(data);
+      if (data) setSavedScripts(data as SavedScript[]);
     };
     fetchScripts();
   }, [user]);
