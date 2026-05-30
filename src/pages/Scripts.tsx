@@ -227,6 +227,7 @@ const Scripts = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={`Rename script ${s.name}`}
             className="h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => { setEditingId(s.id); setEditingName(s.name); }}
           >
@@ -235,6 +236,7 @@ const Scripts = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={`Delete script ${s.name}`}
             className="h-7 w-7 text-muted-foreground hover:text-destructive"
             onClick={() => handleDelete(s.id)}
           >
@@ -250,7 +252,7 @@ const Scripts = () => {
       <header className="border-b border-border px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Button variant="ghost" size="icon" aria-label="Back to practice" onClick={() => navigate("/")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -418,9 +420,9 @@ const Scripts = () => {
             <div className="text-center py-8 text-sm text-muted-foreground">Loading...</div>
           ) : saved.length > 0 ? (
             <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
-              <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 Saved Scripts
-              </p>
+              </h2>
               <div className="space-y-2">
                 {Object.keys(grouped.folders).sort().map((folderName) => {
                   const isOpen = openFolders[folderName] ?? true;

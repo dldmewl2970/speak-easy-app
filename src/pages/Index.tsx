@@ -364,13 +364,14 @@ const Index = () => {
         <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={handleCustomClear}
+            aria-label="Reset practice session and return to SpeakUp home"
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           >
             <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/25">
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <h1 className="text-base font-bold tracking-tight text-foreground">
-              SpeakUp
+              SpeakUp — Practice Speaking with AI Voice
             </h1>
           </button>
           <div className="flex items-center gap-2 flex-wrap">
@@ -557,9 +558,9 @@ const Index = () => {
           {/* Saved Scripts List */}
           {!isCustomMode && savedScripts.length > 0 && (
             <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[240px] overflow-y-auto">
-              <p className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <h2 className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                 Saved Scripts
-              </p>
+              </h2>
               {savedScripts.map((s) => (
                 <button
                   key={s.id}
