@@ -556,25 +556,12 @@ const Index = () => {
             )}
           </div>
 
-          {/* Saved Scripts List */}
+          {/* Saved Scripts List (folder-grouped) */}
           {!isCustomMode && savedScripts.length > 0 && (
-            <div className="rounded-xl border border-border bg-card divide-y divide-border max-h-[240px] overflow-y-auto">
-              <h2 className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                Saved Scripts
-              </h2>
-              {savedScripts.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => handleLoadScript(s)}
-                  className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center justify-between"
-                >
-                  <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
-                  <span className="text-xs text-muted-foreground shrink-0 ml-2">
-                    {splitSentences(s.text).length} sentences
-                  </span>
-                </button>
-              ))}
-            </div>
+            <SavedScriptsFolderList
+              scripts={savedScripts}
+              onLoad={handleLoadScript}
+            />
           )}
 
           {isCustomMode && (
