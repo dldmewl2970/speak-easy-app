@@ -61,7 +61,7 @@ function SavedScriptsFolderList({
       </h2>
       <div className="space-y-2 max-h-[360px] overflow-y-auto">
         {Object.keys(grouped.folders).sort().map((folderName) => {
-          const isOpen = openFolders[folderName] ?? true;
+          const isOpen = openFolders[folderName] ?? false;
           const items = grouped.folders[folderName];
           return (
             <div key={folderName} className="rounded-lg border border-border overflow-hidden">
