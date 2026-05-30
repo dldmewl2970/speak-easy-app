@@ -1,0 +1,10 @@
+# SpeakUp
+
+> Practice speaking English with native AI voices, record yourself, and get instant pronunciation feedback.
+
+SpeakUp helps language learners improve spoken English by reading scripts aloud alongside native-sounding text-to-speech voices (multiple accents and countries), recording their own attempts, and reviewing optional translations and feedback. Users can paste custom text or save reusable scripts organized into folders.
+
+## Pages
+
+- [Home — practice session](/): Listen to a script, record yourself, and compare against the model voice.
+- [My Scripts](/scripts): Create, organize (into folders), and manage saved practice scripts.

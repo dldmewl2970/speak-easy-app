@@ -64,28 +64,36 @@ const Auth = () => {
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto shadow-sm shadow-primary/25">
             <Volume2 className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">SpeakUp</h1>
+          <h1 className="text-2xl font-bold text-foreground">SpeakUp — Sign in to practice speaking</h1>
           <p className="text-sm text-muted-foreground">
             {isLogin ? "Sign in to save your scripts" : "Create an account"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
+          <div className="space-y-1.5">
+            <label htmlFor="auth-email" className="text-xs font-medium text-foreground">Email</label>
+            <Input
+              id="auth-email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="auth-password" className="text-xs font-medium text-foreground">Password</label>
+            <Input
+              id="auth-password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "..." : isLogin ? "Sign In" : "Sign Up"}
           </Button>
