@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Mic, MicOff, Play, FileText, X, Pause, PlayCircle } from "lucide-react";
+import { Volume2, Mic, MicOff, Play, FileText, X, Pause, PlayCircle, Folder, FolderOpen, ChevronRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ interface SavedScript {
   id: string;
   name: string;
   text: string;
+  folder: string | null;
 }
 
 const Index = () => {
