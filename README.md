@@ -1,5 +1,5 @@
 # SpeakUp — English Pronunciation Practice App
-
+https://speakeasyloud.one
 A web app for practicing English speaking. Load a script, listen to native-quality TTS, record your own pronunciation, and get instant accuracy feedback with Korean translation and prosody guidance.
 
 ---
