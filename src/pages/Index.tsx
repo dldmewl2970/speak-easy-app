@@ -441,7 +441,7 @@ const Index = () => {
               <Volume2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <h1 className="text-base font-bold tracking-tight text-foreground">
-              SpeakUp — Practice Speaking with AI Voice
+              SpeakUp
             </h1>
           </button>
           <div className="flex items-center gap-2 flex-wrap">
