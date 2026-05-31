@@ -64,7 +64,7 @@ const Auth = () => {
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto shadow-sm shadow-primary/25">
             <Volume2 className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">SpeakUp — Sign in to practice speaking</h1>
+          <h1 className="text-2xl font-bold text-foreground">SpeakUp</h1>
           <p className="text-sm text-muted-foreground">
             {isLogin ? "Sign in to save your scripts" : "Create an account"}
           </p>
