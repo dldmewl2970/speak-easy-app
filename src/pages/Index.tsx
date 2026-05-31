@@ -105,7 +105,7 @@ const Index = () => {
   const [script, setScript] = useState("");
   const [savedScripts, setSavedScripts] = useState<SavedScript[]>([]);
   const [showScriptList, setShowScriptList] = useState(false);
-  const [listenOnly, setListenOnly] = useState(false);
+  const [listenOnly, setListenOnly] = useState(true);
   const [autoAdvanceDelay, setAutoAdvanceDelay] = useState(2);
   const [repeatCount, setRepeatCount] = useState(1);
   const [scriptLoopCount, setScriptLoopCount] = useState(0);
